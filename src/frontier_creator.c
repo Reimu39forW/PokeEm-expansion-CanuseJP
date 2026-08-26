@@ -113,6 +113,7 @@ static void Task_FrontierItemGiver_SelectItem(u8 taskId);
 static void FrontierItemGiver_DrawScreen(u8 taskId);
 static u16 FrontierItemGiver_GetItemCount(void);
 static void FrontierItemGiver_DestroyAndReturn(u8 taskId);
+static void FrontierHub_GiveGimmickKeyItems(void);
 static void FrontierHub_GiveAutoItems(void);
 static void FrontierHub_TryGiveInitialParty(void);
 static void FrontierHub_CreateInitialGiftMon(const struct FrontierHubInitialGiftMon *gift, struct Pokemon *mon);
@@ -252,6 +253,7 @@ static const u8 *const sFrontierCreatorNatureNames[NUM_NATURES + 1] =
 
 static const struct FrontierHubAutoItem sFrontierHubAutoItems[] =
 {
+    { ITEM_BERSERK_GENE, 999 }, // はかいのいでんし
     { ITEM_HEAT_ROCK, 999 }, // あついいわ
     { ITEM_HEAVY_DUTY_BOOTS, 999 }, // あつぞこブーツ
     { ITEM_LIFE_ORB, 999 }, // いのちのたま
@@ -2937,6 +2939,14 @@ static void FrontierHub_GiveAutoItems(void)
     }
 }
 
+static void FrontierHub_GiveGimmickKeyItems(void)
+{
+    FrontierHub_TryAddItem(ITEM_MEGA_RING);
+    FrontierHub_TryAddItem(ITEM_Z_POWER_RING);
+    FrontierHub_TryAddItem(ITEM_DYNAMAX_BAND);
+    FrontierHub_TryAddItem(ITEM_TERA_ORB);
+}
+
 static void FrontierItemGiver_DrawScreen(u8 taskId)
 {
     u8 windowId = gTasks[taskId].tWindowId;
@@ -3115,6 +3125,7 @@ void Special_SetupFrontierHubState(void)
     for (i = 0; i < ARRAY_COUNT(gBadgeFlags); i++)
         FlagSet(gBadgeFlags[i]);
 
+    FrontierHub_GiveGimmickKeyItems();
     FrontierHub_GiveAllKeyItems();
     FrontierHub_GiveAutoItems();
     FrontierHub_TryGiveInitialParty();

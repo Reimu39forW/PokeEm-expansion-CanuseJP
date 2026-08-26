@@ -5,10 +5,13 @@
 #include "battle_anim.h"
 #include "battle_arena.h"
 #include "battle_controllers.h"
+#include "battle_gimmick.h"
+#include "battle_gimmick_extra.h"
 #include "battle_gfx_sfx_util.h"
 #include "battle_interface.h"
 #include "battle_message.h"
 #include "battle_setup.h"
+#include "battle_util.h"
 #include "battle_tv.h"
 #include "cable_club.h"
 #include "event_data.h"
@@ -3431,7 +3434,10 @@ void SetFinalChosenTarget(enum BattlerId battler, bool32 checkPartner)
 
     enum Gimmick usableGimmick = gBattleStruct->gimmick.usableGimmick[battler];
     bool32 isAIUsingGimmick = gAiBattleData->aiUsingGimmick & (1u << battler);
-    if (usableGimmick != GIMMICK_NONE && isAIUsingGimmick && !HasTrainerUsedGimmick(battler, usableGimmick))
+    if (usableGimmick != GIMMICK_NONE
+     && isAIUsingGimmick
+     && !HasTrainerUsedGimmick(battler, usableGimmick)
+     && CanUseSelectedGimmickWithMove(battler, chosenMove))
     {
         gBattleStruct->gimmick.toActivate |= 1u << battler;
         BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (RET_GIMMICK) | (chosenTarget << 8));

@@ -18,6 +18,7 @@
 #include "battle_tower.h"
 #include "battle_z_move.h"
 #include "battle_gimmick.h"
+#include "battle_gimmick_extra.h"
 #include "berry.h"
 #include "bg.h"
 #include "data.h"
@@ -5180,6 +5181,8 @@ static bool32 TryActivateGimmick(enum BattlerId battler)
     {
         gBattlerAttacker = gBattleScripting.battler = battler;
         gBattleStruct->gimmick.toActivate &= ~(1u << battler);
+        if (!CanUseSelectedGimmickWithMove(battler, gChosenMoveByBattler[battler]))
+            return FALSE;
         if (gGimmicksInfo[gBattleStruct->gimmick.usableGimmick[battler]].ActivateGimmick != NULL)
         {
             gGimmicksInfo[gBattleStruct->gimmick.usableGimmick[battler]].ActivateGimmick(battler);

@@ -4,6 +4,7 @@
 #include "battle_controllers.h"
 #include "battle_interface.h"
 #include "battle_gimmick.h"
+#include "battle_gimmick_extra.h"
 #include "battle_z_move.h"
 #include "battle_setup.h"
 #include "battle_util.h"
@@ -16,6 +17,9 @@
 #include "test_runner.h"
 
 #include "data/gimmicks.h"
+
+#define ACTIVE_GIMMICK_MASK (0x0F)
+#define USED_ANY_GIMMICK_FLAG (0x80)
 
 // Populates gBattleStruct->gimmick.usableGimmick for each battler.
 void AssignUsableGimmicks(void)
@@ -54,13 +58,14 @@ bool32 IsGimmickSelected(enum BattlerId battler, enum Gimmick gimmick)
 // Sets a battler as having a gimmick active using their party index.
 void SetActiveGimmick(enum BattlerId battler, enum Gimmick gimmick)
 {
-    gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]] = gimmick;
+    u8 *state = &gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]];
+    *state = (*state & USED_ANY_GIMMICK_FLAG) | gimmick;
 }
 
 // Returns a battler's active gimmick, if any.
 enum Gimmick GetActiveGimmick(enum BattlerId battler)
 {
-    return gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]];
+    return gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]] & ACTIVE_GIMMICK_MASK;
 }
 
 // Returns whether a trainer mon is intended to use an unrestrictive gimmick via .useGimmick (i.e Tera).
@@ -105,12 +110,43 @@ bool32 HasTrainerUsedGimmick(enum BattlerId battler, enum Gimmick gimmick)
     return gBattleStruct->gimmick.activated[battler][gimmick];
 }
 
+bool32 HasBattlerUsedAnyGimmick(enum BattlerId battler)
+{
+    if (gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]] & USED_ANY_GIMMICK_FLAG)
+        return TRUE;
+
+    return FALSE;
+}
+
+bool32 CanUseSelectedGimmickWithMove(enum BattlerId battler, enum Move move)
+{
+    enum Gimmick gimmick = gBattleStruct->gimmick.usableGimmick[battler];
+
+    if (gimmick == GIMMICK_NONE)
+        return FALSE;
+    if (!CanActivateGimmick(battler, gimmick))
+        return FALSE;
+    if (gimmick == GIMMICK_Z_MOVE && (GetUsableZMove(battler, move) == MOVE_NONE || !IsViableZMove(battler, move)))
+        return FALSE;
+
+    return TRUE;
+}
+
 // Sets a gimmick as used by a trainer with checks for Multi Battles.
 void SetGimmickAsActivated(enum BattlerId battler, enum Gimmick gimmick)
 {
     gBattleStruct->gimmick.activated[battler][gimmick] = TRUE;
+    gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]] |= USED_ANY_GIMMICK_FLAG;
     if (IsDoubleBattle() && (IsPartnerMonFromSameTrainer(battler) || (gimmick == GIMMICK_DYNAMAX)))
         gBattleStruct->gimmick.activated[GetPartnerBattler(battler)][gimmick] = TRUE;
+}
+
+void ClearGimmickAsActivated(enum BattlerId battler, enum Gimmick gimmick)
+{
+    gBattleStruct->gimmick.activated[battler][gimmick] = FALSE;
+    gBattleStruct->gimmick.activeGimmick[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]] &= ~USED_ANY_GIMMICK_FLAG;
+    if (IsDoubleBattle() && (IsPartnerMonFromSameTrainer(battler) || (gimmick == GIMMICK_DYNAMAX)))
+        gBattleStruct->gimmick.activated[GetPartnerBattler(battler)][gimmick] = FALSE;
 }
 
 #define SINGLES_GIMMICK_TRIGGER_POS_X_OPTIMAL (30)

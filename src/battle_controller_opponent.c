@@ -7,10 +7,13 @@
 #include "battle_anim.h"
 #include "battle_arena.h"
 #include "battle_controllers.h"
+#include "battle_gimmick.h"
+#include "battle_gimmick_extra.h"
 #include "battle_message.h"
 #include "battle_interface.h"
 #include "battle_setup.h"
 #include "battle_special.h"
+#include "battle_util.h"
 #include "battle_tv.h"
 #include "battle_z_move.h"
 #include "bg.h"
@@ -439,8 +442,11 @@ static void OpponentHandleChooseMove(enum BattlerId battler)
         {
             u32 chosenMoveAndTarget = ChooseMoveAndTargetInBattlePalace(battler);
             enum Gimmick usableGimmick = gBattleStruct->gimmick.usableGimmick[battler];
+            u32 chosenMoveIndex = chosenMoveAndTarget & (MAX_MON_MOVES - 1);
 
-            if (usableGimmick != GIMMICK_NONE && !HasTrainerUsedGimmick(battler, usableGimmick))
+            if (usableGimmick != GIMMICK_NONE
+             && !HasTrainerUsedGimmick(battler, usableGimmick)
+             && CanUseSelectedGimmickWithMove(battler, gBattleMons[battler].moves[chosenMoveIndex]))
             {
                 SetAIUsingGimmick(battler, USE_GIMMICK);
                 gBattleStruct->gimmick.toActivate |= 1u << battler;

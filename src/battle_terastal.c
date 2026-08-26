@@ -5,6 +5,7 @@
 #include "battle_interface.h"
 #include "battle_terastal.h"
 #include "battle_gimmick.h"
+#include "battle_gimmick_extra.h"
 #include "battle_scripts.h"
 #include "event_data.h"
 #include "item.h"
@@ -89,6 +90,10 @@ bool32 CanTerastallize(enum BattlerId battler)
 
     // Check if Trainer has already Terastallized.
     if (HasTrainerUsedGimmick(battler, GIMMICK_TERA))
+        return FALSE;
+
+    // Check if this Pokemon has already used another gimmick.
+    if (HasBattlerUsedAnyGimmick(battler))
         return FALSE;
 
     // Check if AI battler is intended to Terastallize.

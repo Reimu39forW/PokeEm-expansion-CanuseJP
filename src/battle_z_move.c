@@ -7,6 +7,7 @@
 #include "battle_interface.h"
 #include "battle_message.h"
 #include "battle_z_move.h"
+#include "battle_gimmick_extra.h"
 #include "battle_scripts.h"
 #include "battle_stat_change.h"
 #include "graphics.h"
@@ -124,6 +125,10 @@ bool32 CanUseZMove(enum BattlerId battler)
 
     // Check if Trainer has already used a Z-Move.
     if (HasTrainerUsedGimmick(battler, GIMMICK_Z_MOVE))
+        return FALSE;
+
+    // Check if this Pokemon has already used another gimmick.
+    if (HasBattlerUsedAnyGimmick(battler))
         return FALSE;
 
     // Check if battler has another gimmick active.
