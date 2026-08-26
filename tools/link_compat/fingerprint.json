@@ -6,7 +6,7 @@
       "battle_volatile_layout": "683e2722bdfe5553ae86ac10242878854ac260ba16d8a5fe6545920766313344",
       "battle_volatiles": "49f07bad9c2522920b83565e5e722d6d59ee9fad6ed46071c408c03ee0862742",
       "box_pokemon": "7269b31bf963339c61fb6c4110c2bfd16099150dd668ac95a35229bdcce7e7f0",
-      "choose_move_packet": "2f88099affd8b0d2c688b6a6920d88db2ac562ec83bd58bc88ccd9c4d1240ff3",
+      "choose_move_packet": "0e323913f4b5936dfd284538ea07e0918f7e85469869433b1d68061cacf24ad0",
       "contest_appeal_results": "d656f2a14e0d752229c00375183d44c9c388dc95ba54d8d9e7615ec5e889b951",
       "contest_excitement": "7e496719d5122779ffd3693e7a83095b50950b4e1bdb60ee9b47eceb91de3b06",
       "contest_move_selection_packet": "e812e01519bcd5dba5c5ee49c660a80a07b388761ee6e6f72ab522ed10ac317f",
@@ -32,7 +32,7 @@
       "battle_controller_commands": "e75651b87efc2adb4441c6f9d016b7a5c87ad8e8dbfa2f59301fdec794e1a3cf",
       "battle_controller_requests": "e96abd3b5da6767581339bf8f3a569132350091d0a8e19167827c5a68d8a4fe5",
       "battle_gimmicks": "efa8e37a44255b7092b09923104bfb18e9885de80615ea804f2f05f99bc2dd7a",
-      "battle_sync_config": "77dbf4e9ef5042cca92f6cd6231082cfa0d2afd89c970ce3e6ac71504363bec2",
+      "battle_sync_config": "bcabdf05654476c9f437c86f826408a14fbb5ce58712c3af9ce2e2201128a0e0",
       "battle_type_flags": "ff98d28d17414754d12b9a0be3509b63bb33233738d16c0a0e4e32edd3ddf935",
       "contest_gimmicks": "d037568d4ca0ccb419b59d31866e1cbe98fcf02754c33a64ff6f924ac03d38ab",
       "gimmick_feature_flags": "6a903cc36f1f683fc5c7fb81f98384b74425269708272a156d0cb07fcf01cc51",
@@ -40,13 +40,13 @@
       "union_room_activities": "9024f4f9a004353a2222be88d9d6768d42d00f21df05a589394ff353895686cf"
     }
   },
-  "data_layout_version": 2,
+  "data_layout_version": 3,
   "fingerprints": {
-    "combined": "e99c82a39cdad0bb99820c205782619256293c747b28c2b7e78d13fffae26717",
-    "data_layout": "4b54a91b38d2c0a285b8e163d731274b421107944d3f2f4183fff96137bd7276",
-    "protocol": "bfa1681ac860f08305a0aa05725ddd3cdbf6d0db9f9f0086968faa7bde1ddf18"
+    "combined": "809ce09513f56a06beb2dab9a77319f2161a50319b0bb05962e5fb89859e1b90",
+    "data_layout": "8c3aafe51ee577147f139a445365ab6954fee0cf643d50e7ae44e9efc71c06de",
+    "protocol": "fb1801e2a74f2118f344eef4e73695d5f24e86abb0e3e44e2a5566c3aa3f55c3"
   },
-  "link_compat_version": 2,
+  "link_compat_version": 3,
   "schema_version": 1,
   "summary": {
     "buffer_sizes": {

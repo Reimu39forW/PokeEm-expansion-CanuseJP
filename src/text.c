@@ -54,7 +54,7 @@ static u32 GetGlyphWidth_SmallNarrower(u16, bool32);
 static u32 GetGlyphWidth_ShortNarrow(u16, bool32);
 static u32 GetGlyphWidth_ShortNarrower(u16, bool32);
 static bool32 StringStartsWithJapaneseGlyph(const u8 *str);
-static bool32 StringContainsJapaneseGlyph(const u8 *str);
+bool32 StringContainsJapaneseGlyph(const u8 *str);
 static struct TextPrinter *AllocateTextPrinter(void);
 static u32 GetNumTextPrinters(void);
 static void FreeFinishedTextPrinters(void);
@@ -69,7 +69,7 @@ static EWRAM_DATA u16 sFontHalfRowLookupTable[0x100];
 static EWRAM_DATA union TextColor sLastTextColor;
 
 EWRAM_DATA const struct FontInfo *gFonts = NULL;
-EWRAM_DATA bool8 gDisableTextPrinters = 0;
+EWRAM_DATA bool8 gDisableTextPrinters = FALSE;
 EWRAM_DATA TextFlags gTextFlags = {0};
 IWRAM_DATA struct TextGlyph gCurGlyph = {0};
 
@@ -324,7 +324,7 @@ case CHAR_DYNAMIC:
     return FALSE;
 }
 
-static bool32 StringContainsJapaneseGlyph(const u8 *str)
+bool32 StringContainsJapaneseGlyph(const u8 *str)
 {
     const u8 *bufferPointer;
 
@@ -733,7 +733,7 @@ void DeactivateAllTextPrinters(void)
     FreeFinishedTextPrinters();
 }
 
-u16 AddTextPrinterParameterized(u8 windowId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, void (*callback)(struct TextPrinterTemplate *, u16))
+bool16 AddTextPrinterParameterized(u8 windowId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, TextPrinterCallback callback)
 {
     struct TextPrinterTemplate printerTemplate;
 
@@ -751,7 +751,7 @@ u16 AddTextPrinterParameterized(u8 windowId, u8 fontId, const u8 *str, u8 x, u8 
     return AddTextPrinter(&printerTemplate, speed, callback);
 }
 
-u16 AddSpriteTextPrinterParameterized(u8 spriteId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, void (*callback)(struct TextPrinterTemplate *, u16))
+bool16 AddSpriteTextPrinterParameterized(u8 spriteId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, TextPrinterCallback callback)
 {
     struct TextPrinterTemplate printerTemplate;
 
@@ -929,6 +929,8 @@ void RunTextPrinters(void)
                         case SPRITE_TEXT_PRINTER:
                             break;
                         }
+                        if (currentPrinter->callback != NULL)
+                            currentPrinter->callback(&currentPrinter->printerTemplate, renderState);
                         break;
                     case RENDER_UPDATE:
                         if (currentPrinter->callback != NULL)
@@ -1721,8 +1723,10 @@ static u16 RenderText(struct TextPrinter *textPrinter)
         else
             textPrinter->delayCounter = textPrinter->textSpeed;
 
-        currChar = *textPrinter->printerTemplate.currentChar;
-        textPrinter->printerTemplate.currentChar++;
+        do {
+            currChar = *textPrinter->printerTemplate.currentChar;
+            textPrinter->printerTemplate.currentChar++;
+        } while (!textPrinter->japanese && currChar == CHAR_ZWS);
 
         switch (currChar)
         {
@@ -2178,6 +2182,9 @@ static u32 (*GetFontWidthFunc(u8 fontId))(u16, bool32)
 
 s32 GetGlyphWidth(u16 glyphId, bool32 isJapanese, u8 fontId)
 {
+    if (!isJapanese && glyphId == CHAR_ZWS)
+        return 0;
+
     u32 (*func)(u16 fontId, bool32 isJapanese);
 
     func = GetFontWidthFunc(fontId);

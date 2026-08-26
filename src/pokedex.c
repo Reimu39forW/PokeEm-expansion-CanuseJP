@@ -848,12 +848,16 @@ static const struct WindowTemplate sPokemonList_WindowTemplate[] =
 
 static const u8 sText_No0000[] = _("{NO}0000");
 static const u8 sText_No000[] = _("{NO}000");
-static const u8 sCaughtBall_Gfx[] = INCGFX_U8("graphics/pokedex/caught_ball.png", ".4bpp");
+static const u8 sCaughtBall_Gfx[] = INCBIN_U8("build/extracted_pokedex/sprites/caught_ball.4bpp");
 static const u8 sText_TenDashes[] = _("----------");
 
 ALIGNED(4) static const u8 sExpandedPlaceholder_PokedexDescription[] = _("");
 
-static const u16 sSizeScreenSilhouette_Pal[] = INCGFX_U16("graphics/pokedex/size_silhouette.pal", ".gbapal");
+static const u16 sSizeScreenSilhouette_Pal[] = INCBIN_U16("build/extracted_pokedex/palettes/size_silhouette.gbapal");
+
+// BPEJ stores these list palettes without the transparent color loaded separately by the UI.
+static const u16 sPokedexBgHoennLoaded_Pal[] = INCBIN_U16("build/extracted_pokedex/palettes/bg_hoenn_loaded.gbapal");
+static const u16 sPokedexBgNationalLoaded_Pal[] = INCBIN_U16("build/extracted_pokedex/palettes/bg_national_loaded.gbapal");
 
 static const struct BgTemplate sInfoScreen_BgTemplate[] =
 {
@@ -1600,7 +1604,7 @@ void CB2_OpenPokedex(void)
     default:
         SetVBlankCallback(NULL);
         ResetOtherVideoRegisters(0);
-        DmaFillLarge16(3, 0, (u8 *)VRAM, VRAM_SIZE, 0x1000);
+        DmaClearLarge16(3, (void *)VRAM, VRAM_SIZE, 0x1000);
         DmaClear32(3, OAM, OAM_SIZE);
         DmaClear16(3, PLTT, PLTT_SIZE);
         gMain.state = 1;
@@ -2153,9 +2157,9 @@ static void LoadPokedexBgPalette(bool8 isSearchResults)
     if (isSearchResults == TRUE)
         LoadPalette(gPokedexSearchResults_Pal + 1, BG_PLTT_ID(0) + 1, PLTT_SIZEOF(6 * 16 - 1));
     else if (!IsNationalPokedexEnabled())
-        LoadPalette(gPokedexBgHoenn_Pal + 1, BG_PLTT_ID(0) + 1, PLTT_SIZEOF(6 * 16 - 1));
+        LoadPalette(sPokedexBgHoennLoaded_Pal, BG_PLTT_ID(0) + 1, PLTT_SIZEOF(6 * 16 - 1));
     else
-        LoadPalette(gPokedexBgNational_Pal + 1, BG_PLTT_ID(0) + 1, PLTT_SIZEOF(6 * 16 - 1));
+        LoadPalette(sPokedexBgNationalLoaded_Pal, BG_PLTT_ID(0) + 1, PLTT_SIZEOF(6 * 16 - 1));
     LoadPalette(GetOverworldTextboxPalettePtr(), BG_PLTT_ID(15), PLTT_SIZE_4BPP);
 }
 
@@ -4689,7 +4693,7 @@ bool16 HasAllMons(void)
     for (i = 1; i < NATIONAL_DEX_COUNT + 1; i++)
     {
         j = NationalPokedexNumToSpecies(i);
-        if (!(gSpeciesInfo[j].isMythical && !gSpeciesInfo[j].dexForceRequired) && !GetSetPokedexFlag(j, FLAG_GET_CAUGHT))
+        if (!(gSpeciesInfo[j].isMythical && !gSpeciesInfo[j].dexForceRequired) && !GetSetPokedexFlag(i, FLAG_GET_CAUGHT))
             return FALSE;
     }
 
