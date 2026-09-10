@@ -4153,6 +4153,62 @@ void SwitchPartyOrder(enum BattlerId battler)
     }
 }
 
+STATIC_ASSERT(GIMMICKS_COUNT <= 8, GimmickSelectionMaskMustFitInOneByte)
+
+static u32 GetMoveSelectionResponse(enum BattlerId battler)
+{
+    return (u32)gBattleResources->bufferB[battler][2]
+         | ((u32)gBattleResources->bufferB[battler][3] << 8)
+         | ((u32)gBattleResources->bufferB[battler][4] << 16)
+         | ((u32)gBattleResources->bufferB[battler][5] << 24);
+}
+
+static void ApplyChosenGimmickFromController(enum BattlerId battler)
+{
+    u32 response = GetMoveSelectionResponse(battler);
+    enum Gimmick gimmick = RET_GIMMICK_ID(response);
+    u8 availableMask = RET_GIMMICK_MASK(response);
+    u8 movePosition = response & RET_MOVE_POSITION_MASK;
+
+    gBattleStruct->gimmick.playerSelect[battler] = FALSE;
+    gBattleStruct->gimmick.toActivate &= ~(1u << battler);
+
+    if (!(response & RET_GIMMICK))
+        return;
+
+    // Non-link AI, recorded battles, and the test runner historically return
+    // only RET_GIMMICK. Their chosen gimmick was already validated and stored
+    // locally, so preserve that protocol instead of applying link validation.
+    if (!(gBattleTypeFlags & BATTLE_TYPE_LINK) && gimmick == GIMMICK_NONE)
+    {
+        gimmick = gBattleStruct->gimmick.usableGimmick[battler];
+        if (gimmick > GIMMICK_NONE && gimmick < GIMMICKS_COUNT)
+        {
+            gBattleStruct->gimmick.toActivate |= 1u << battler;
+            return;
+        }
+        goto invalid;
+    }
+
+    if (gimmick <= GIMMICK_NONE || gimmick >= GIMMICKS_COUNT)
+        goto invalid;
+    if ((gBattleTypeFlags & BATTLE_TYPE_LINK) && !(availableMask & (1u << gimmick)))
+        goto invalid;
+    if (availableMask != 0 && !(availableMask & (1u << gimmick)))
+        goto invalid;
+    if (gimmick == GIMMICK_Z_MOVE
+     && GetUsableZMove(battler, gBattleMons[battler].moves[movePosition]) == MOVE_NONE)
+        goto invalid;
+
+    gBattleStruct->gimmick.usableGimmick[battler] = gimmick;
+    gBattleStruct->gimmick.toActivate |= 1u << battler;
+    return;
+
+invalid:
+    gBattleStruct->gimmick.usableGimmick[battler] = GIMMICK_NONE;
+    gBattleResources->bufferB[battler][2] &= ~RET_GIMMICK;
+}
+
 enum
 {
     STATE_TURN_START_RECORD,
@@ -4484,6 +4540,8 @@ static void HandleTurnActionSelectionState(void)
                         return;
                     default:
                         RecordedBattle_CheckMovesetChanges(B_RECORD_MODE_PLAYBACK);
+                        if ((gBattleResources->bufferB[battler][2] | (gBattleResources->bufferB[battler][3] << 8)) != 0xFFFF)
+                            ApplyChosenGimmickFromController(battler);
                         if ((gBattleResources->bufferB[battler][2] | (gBattleResources->bufferB[battler][3] << 8)) == 0xFFFF)
                         {
                             gBattleCommunication[battler] = STATE_BEFORE_ACTION_CHOSEN;
@@ -4514,10 +4572,6 @@ static void HandleTurnActionSelectionState(void)
                                 gProtectStructs[battler].myceliumMight = TRUE;
                             if (GetBattlerHoldEffect(battler) == HOLD_EFFECT_LAGGING_TAIL)
                                 gProtectStructs[battler].laggingTail = TRUE;
-
-                            // Check to see if any gimmicks need to be prepared.
-                            if (gBattleResources->bufferB[battler][2] & RET_GIMMICK)
-                                gBattleStruct->gimmick.toActivate |= 1u << battler;
 
                             // Max Move check
                             if (GetActiveGimmick(battler) == GIMMICK_DYNAMAX || IsGimmickSelected(battler, GIMMICK_DYNAMAX))

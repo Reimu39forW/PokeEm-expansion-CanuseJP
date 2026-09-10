@@ -7,8 +7,6 @@
 #include "battle_anim.h"
 #include "battle_arena.h"
 #include "battle_controllers.h"
-#include "battle_gimmick.h"
-#include "battle_gimmick_extra.h"
 #include "battle_message.h"
 #include "battle_interface.h"
 #include "battle_setup.h"
@@ -441,21 +439,6 @@ static void OpponentHandleChooseMove(enum BattlerId battler)
         if (gBattleTypeFlags & BATTLE_TYPE_PALACE)
         {
             u32 chosenMoveAndTarget = ChooseMoveAndTargetInBattlePalace(battler);
-            enum Gimmick usableGimmick = gBattleStruct->gimmick.usableGimmick[battler];
-            u32 chosenMoveIndex = chosenMoveAndTarget & (MAX_MON_MOVES - 1);
-
-            if (usableGimmick != GIMMICK_NONE
-             && !HasTrainerUsedGimmick(battler, usableGimmick)
-             && CanUseSelectedGimmickWithMove(battler, gBattleMons[battler].moves[chosenMoveIndex]))
-            {
-                SetAIUsingGimmick(battler, USE_GIMMICK);
-                gBattleStruct->gimmick.toActivate |= 1u << battler;
-                chosenMoveAndTarget |= RET_GIMMICK;
-            }
-            else
-            {
-                SetAIUsingGimmick(battler, NO_GIMMICK);
-            }
             BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, chosenMoveAndTarget);
         }
         else if (gAiBattleData->actionFlee)

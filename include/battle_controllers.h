@@ -205,6 +205,12 @@ enum {
 // Special return values in gBattleBufferB from Battle Controller functions.
 #define RET_VALUE_LEVELED_UP   11
 #define RET_GIMMICK            (1 << 7)
+#define RET_MOVE_POSITION_MASK (MAX_MON_MOVES - 1)
+#define RET_TARGET_SHIFT       8
+#define RET_GIMMICK_ID_SHIFT   16
+#define RET_GIMMICK_MASK_SHIFT 24
+#define RET_GIMMICK_ID(value)  (((value) >> RET_GIMMICK_ID_SHIFT) & 0xFF)
+#define RET_GIMMICK_MASK(value) (((value) >> RET_GIMMICK_MASK_SHIFT) & 0xFF)
 
 struct UnusedControllerStruct
 {
@@ -309,6 +315,7 @@ void InitBattleControllers(void);
 bool32 IsValidForBattle(struct Pokemon *mon);
 void TryReceiveLinkBattleData(void);
 void PrepareBufferDataTransferLink(enum BattlerId battler, u32 bufferId, u16 size, u8 *data);
+bool32 TryQueueLinkBattleControllerReply(enum BattlerId battler, u8 ret8, u32 ret32, u8 playerId);
 void UpdateFriendshipFromXItem(enum BattlerId battler);
 bool32 IsAiVsAiBattle(void);
 bool32 BattlerIsPlayer(enum BattlerId battlerId);

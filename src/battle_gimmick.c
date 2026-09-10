@@ -41,18 +41,20 @@ void AssignUsableGimmicks(void)
 // Returns whether a battler is able to use a gimmick. Checks consumption and gimmick specific functions.
 bool32 CanActivateGimmick(enum BattlerId battler, enum Gimmick gimmick)
 {
+    if ((gBattleTypeFlags & BATTLE_TYPE_PALACE)
+     && gimmick != GIMMICK_MEGA
+     && gimmick != GIMMICK_TERA)
+        return FALSE;
+
     return gGimmicksInfo[gimmick].CanActivate != NULL && gGimmicksInfo[gimmick].CanActivate(battler);
 }
 
 // Returns whether the player has a gimmick selected while in the move selection menu.
 bool32 IsGimmickSelected(enum BattlerId battler, enum Gimmick gimmick)
 {
-    // There's no player select in tests, but some gimmicks need to test choice before they are fully activated.
-    #if TESTING
-    return (gBattleStruct->gimmick.toActivate & (1u << battler)) && gBattleStruct->gimmick.usableGimmick[battler] == gimmick;
-    #else
-    return gBattleStruct->gimmick.usableGimmick[battler] == gimmick && gBattleStruct->gimmick.playerSelect;
-    #endif
+    return gBattleStruct->gimmick.usableGimmick[battler] == gimmick
+        && (gBattleStruct->gimmick.playerSelect[battler]
+         || (gBattleStruct->gimmick.toActivate & (1u << battler)));
 }
 
 // Sets a battler as having a gimmick active using their party index.
@@ -75,6 +77,11 @@ bool32 ShouldTrainerBattlerUseGimmick(enum BattlerId battler, enum Gimmick gimmi
     #if TESTING
     return gimmick == TestRunner_Battle_GetChosenGimmick(GetBattlerTrainer(battler), gBattlerPartyIndexes[battler]);
     #else
+    // Every linked human chooses on their own console. On the other consoles
+    // that battler uses a link controller rather than the player controller.
+    if ((gBattleTypeFlags & BATTLE_TYPE_LINK) && (BattlerIsPlayer(battler) || BattlerIsLink(battler)))
+        return TRUE;
+
     // The player can bypass these checks because they can choose through the controller.
     if (IsOnPlayerSide(battler)
      && (!(gBattleTypeFlags & BATTLE_TYPE_MULTI)

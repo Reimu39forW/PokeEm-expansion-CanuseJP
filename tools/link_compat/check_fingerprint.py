@@ -299,6 +299,9 @@ def collect_fingerprint(root):
     protocol_components["battle_controller_requests"] = digest(
         normalize(extract_enum_containing(controller_text, "REQUEST_ALL_BATTLE"))
     )
+    protocol_components["battle_controller_returns"] = digest(
+        normalize(extract_defines(controller_text, lambda name: name.startswith("RET_")))
+    )
     protocol_components["battle_gimmicks"] = digest(normalize(read_text(root, "include/battle_gimmick.h")))
     protocol_components["contest_gimmicks"] = digest(
         normalize(extract_enum_containing(read_text(root, "include/contest.h"), "CONTEST_GIMMICK_MEGA"))

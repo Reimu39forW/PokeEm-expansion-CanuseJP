@@ -629,39 +629,68 @@ static bool32 ReserveLinkBattleBufferSpace(u8 taskId, u16 requiredSize, u8 queue
     }
 
 full:
-    gLink.queueFull = queueFullType;
+    if (queueFullType != QUEUE_FULL_NONE)
+        gLink.queueFull = queueFullType;
     return FALSE;
+}
+
+static u16 GetLinkBattlePacketSize(u16 dataSize)
+{
+    return ((dataSize + 3) & ~3) + LINK_BUFF_DATA;
+}
+
+static void QueueLinkBattleDataTransfer(enum BattlerId battler, u32 bufferId, u16 size, const u8 *data)
+{
+    u16 alignedSize = (size + 3) & ~3;
+    u16 offset = gTasks[sLinkSendTaskId].tCurrentBlock_End;
+
+    gLinkBattleSendBuffer[offset + LINK_BUFF_BUFFER_ID]            = bufferId;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_ACTIVE_BATTLER]       = battler;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_ATTACKER]             = gBattlerAttacker;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_TARGET]               = gBattlerTarget;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_SIZE_LO]              = alignedSize;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_SIZE_HI]              = (alignedSize & 0xFF00) >> 8;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_ABSENT_BATTLER_FLAGS] = gAbsentBattlerFlags;
+    gLinkBattleSendBuffer[offset + LINK_BUFF_EFFECT_BATTLER]       = gEffectBattler;
+
+    for (u16 i = 0; i < size; i++)
+        gLinkBattleSendBuffer[offset + LINK_BUFF_DATA + i] = data[i];
+    for (u16 i = size; i < alignedSize; i++)
+        gLinkBattleSendBuffer[offset + LINK_BUFF_DATA + i] = 0;
+
+    gTasks[sLinkSendTaskId].tCurrentBlock_End += alignedSize + LINK_BUFF_DATA;
 }
 
 // We want to send a message. Place it into the "send" buffer.
 // First argument is a BATTLELINKCOMMTYPE_
 void PrepareBufferDataTransferLink(enum BattlerId battler, u32 bufferId, u16 size, u8 *data)
 {
-    s32 alignedSize;
-    s32 i;
-
-    alignedSize = (size + 3) & ~3;
-    if (!ReserveLinkBattleBufferSpace(sLinkSendTaskId, alignedSize + LINK_BUFF_DATA, QUEUE_FULL_SEND))
+    if (!ReserveLinkBattleBufferSpace(sLinkSendTaskId, GetLinkBattlePacketSize(size), QUEUE_FULL_SEND))
         return;
 
-    #define BYTE_TO_SEND(offset) \
-        gLinkBattleSendBuffer[gTasks[sLinkSendTaskId].tCurrentBlock_End + offset]
+    QueueLinkBattleDataTransfer(battler, bufferId, size, data);
+}
 
-    BYTE_TO_SEND(LINK_BUFF_BUFFER_ID)            = bufferId;
-    BYTE_TO_SEND(LINK_BUFF_ACTIVE_BATTLER)       = battler;
-    BYTE_TO_SEND(LINK_BUFF_ATTACKER)             = gBattlerAttacker;
-    BYTE_TO_SEND(LINK_BUFF_TARGET)               = gBattlerTarget;
-    BYTE_TO_SEND(LINK_BUFF_SIZE_LO)              = alignedSize;
-    BYTE_TO_SEND(LINK_BUFF_SIZE_HI)              = (alignedSize & 0x0000FF00) >> 8;
-    BYTE_TO_SEND(LINK_BUFF_ABSENT_BATTLER_FLAGS) = gAbsentBattlerFlags;
-    BYTE_TO_SEND(LINK_BUFF_EFFECT_BATTLER)       = gEffectBattler;
+bool32 TryQueueLinkBattleControllerReply(enum BattlerId battler, u8 ret8, u32 ret32, u8 playerId)
+{
+    u8 response[6] =
+    {
+        CONTROLLER_TWORETURNVALUES,
+        ret8,
+        ret32,
+        ret32 >> 8,
+        ret32 >> 16,
+        ret32 >> 24,
+    };
+    u8 completed[4] = {playerId, 0, 0, 0};
+    u16 requiredSize = GetLinkBattlePacketSize(sizeof(response)) + GetLinkBattlePacketSize(sizeof(completed));
 
-    for (i = 0; i < size; i++)
-        BYTE_TO_SEND(LINK_BUFF_DATA + i) = data[i];
+    if (!ReserveLinkBattleBufferSpace(sLinkSendTaskId, requiredSize, QUEUE_FULL_NONE))
+        return FALSE;
 
-    #undef BYTE_TO_SEND
-
-    gTasks[sLinkSendTaskId].tCurrentBlock_End = gTasks[sLinkSendTaskId].tCurrentBlock_End + alignedSize + LINK_BUFF_DATA;
+    QueueLinkBattleDataTransfer(battler, B_COMM_TO_ENGINE, sizeof(response), response);
+    QueueLinkBattleDataTransfer(battler, B_COMM_CONTROLLER_IS_DONE, sizeof(completed), completed);
+    return TRUE;
 }
 
 enum {
@@ -782,7 +811,6 @@ void TryReceiveLinkBattleData(void)
         {
             if (GetBlockReceivedStatus() & (1 << (i)))
             {
-                ResetBlockReceivedFlag(i);
                 recvBuffer = (u8 *)gBlockRecvBuffer[i];
                 {
                     u8 *dest, *src;
@@ -791,10 +819,11 @@ void TryReceiveLinkBattleData(void)
                     if (dataSize + LINK_BUFF_DATA > BLOCK_BUFFER_SIZE)
                     {
                         gLink.badChecksum = TRUE;
+                        ResetBlockReceivedFlag(i);
                         continue;
                     }
 
-                    if (!ReserveLinkBattleBufferSpace(sLinkReceiveTaskId, dataSize + LINK_BUFF_DATA, QUEUE_FULL_RECV))
+                    if (!ReserveLinkBattleBufferSpace(sLinkReceiveTaskId, dataSize + LINK_BUFF_DATA, QUEUE_FULL_NONE))
                         continue;
 
                     dest = &gLinkBattleRecvBuffer[gTasks[sLinkReceiveTaskId].tCurrentBlock_End];
@@ -804,6 +833,7 @@ void TryReceiveLinkBattleData(void)
                         dest[j] = src[j];
 
                     gTasks[sLinkReceiveTaskId].tCurrentBlock_End = gTasks[sLinkReceiveTaskId].tCurrentBlock_End + dataSize + 8;
+                    ResetBlockReceivedFlag(i);
                 }
             }
         }
@@ -3440,11 +3470,16 @@ void SetFinalChosenTarget(enum BattlerId battler, bool32 checkPartner)
      && CanUseSelectedGimmickWithMove(battler, chosenMove))
     {
         gBattleStruct->gimmick.toActivate |= 1u << battler;
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (RET_GIMMICK) | (chosenTarget << 8));
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT,
+                                          chosenMoveIndex | RET_GIMMICK
+                                        | (chosenTarget << RET_TARGET_SHIFT)
+                                        | ((u32)usableGimmick << RET_GIMMICK_ID_SHIFT)
+                                        | ((u32)(1u << usableGimmick) << RET_GIMMICK_MASK_SHIFT));
     }
     else
     {
         SetAIUsingGimmick(battler, NO_GIMMICK);
-        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, (chosenMoveIndex) | (chosenTarget << 8));
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT,
+                                          chosenMoveIndex | (chosenTarget << RET_TARGET_SHIFT));
     }
 }

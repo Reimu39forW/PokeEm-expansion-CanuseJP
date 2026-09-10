@@ -95,9 +95,16 @@ static void ReloadMoveNames(enum BattlerId battler);
 static void RefreshMoveSelectionAfterGimmickChange(enum BattlerId battler);
 static bool32 TryToggleRequestedGimmick(enum BattlerId battler, enum Gimmick gimmick);
 static bool32 TryToggleMegaOrZMoveGimmick(enum BattlerId battler, enum Move move);
+static enum Gimmick GetFirstLocallyUsableGimmick(enum BattlerId battler);
+static u8 GetLocallyUsableGimmickMask(enum BattlerId battler, enum Move move);
+static void ConfirmMoveSelection(enum BattlerId battler, enum BattlerId target);
+static void SubmitMoveSelectionResponse(enum BattlerId battler, u32 response);
+static void TrySendMoveSelectionResponse(enum BattlerId battler);
 static u32 CheckTypeEffectiveness(enum BattlerId battlerAtk, enum BattlerId battlerDef);
 static u32 CheckTargetTypeEffectiveness(enum BattlerId battler);
 static void MoveSelectionDisplayMoveEffectiveness(u32 foeEffectiveness, enum BattlerId battler);
+
+static u32 sPendingMoveSelectionResponses[MAX_BATTLERS_COUNT];
 
 static void (*const sPlayerBufferCommands[CONTROLLER_CMDS_COUNT])(enum BattlerId battler) =
 {
@@ -413,6 +420,86 @@ static void HandleInputChooseAction(enum BattlerId battler)
     }
 }
 
+static enum Gimmick GetFirstLocallyUsableGimmick(enum BattlerId battler)
+{
+    for (enum Gimmick gimmick = GIMMICK_NONE + 1; gimmick < GIMMICKS_COUNT; gimmick++)
+    {
+        if (CanActivateGimmick(battler, gimmick))
+            return gimmick;
+    }
+
+    return GIMMICK_NONE;
+}
+
+static u8 GetLocallyUsableGimmickMask(enum BattlerId battler, enum Move move)
+{
+    u8 mask = 0;
+
+    for (enum Gimmick gimmick = GIMMICK_NONE + 1; gimmick < GIMMICKS_COUNT; gimmick++)
+    {
+        if (!CanActivateGimmick(battler, gimmick))
+            continue;
+        if (gimmick == GIMMICK_Z_MOVE && GetUsableZMove(battler, move) == MOVE_NONE)
+            continue;
+
+        mask |= 1u << gimmick;
+    }
+
+    return mask;
+}
+
+static u32 PackMoveSelectionResponse(enum BattlerId battler, enum BattlerId target)
+{
+    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+    enum Move move = moveInfo->moves[gMoveSelectionCursor[battler]];
+    enum Gimmick selected = gBattleStruct->gimmick.usableGimmick[battler];
+    u8 availableMask = GetLocallyUsableGimmickMask(battler, move);
+    u32 response = (gMoveSelectionCursor[battler] & RET_MOVE_POSITION_MASK)
+                 | (target << RET_TARGET_SHIFT)
+                 | ((u32)availableMask << RET_GIMMICK_MASK_SHIFT);
+
+    if (gBattleStruct->gimmick.playerSelect[battler]
+     && selected > GIMMICK_NONE
+     && selected < GIMMICKS_COUNT
+     && (availableMask & (1u << selected)))
+    {
+        response |= RET_GIMMICK | ((u32)selected << RET_GIMMICK_ID_SHIFT);
+    }
+
+    return response;
+}
+
+static void TrySendMoveSelectionResponse(enum BattlerId battler)
+{
+    if (TryQueueLinkBattleControllerReply(battler, B_ACTION_EXEC_SCRIPT,
+                                          sPendingMoveSelectionResponses[battler], GetMultiplayerId()))
+    {
+        sPendingMoveSelectionResponses[battler] = 0;
+        gBattlerControllerFuncs[battler] = PlayerBufferRunCommand;
+        gBattleResources->bufferA[battler][0] = CONTROLLER_TERMINATOR_NOP;
+    }
+}
+
+static void SubmitMoveSelectionResponse(enum BattlerId battler, u32 response)
+{
+    if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+    {
+        sPendingMoveSelectionResponses[battler] = response;
+        gBattlerControllerFuncs[battler] = TrySendMoveSelectionResponse;
+        TrySendMoveSelectionResponse(battler);
+    }
+    else
+    {
+        BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, response);
+        BtlController_Complete(battler);
+    }
+}
+
+static void ConfirmMoveSelection(enum BattlerId battler, enum BattlerId target)
+{
+    SubmitMoveSelectionResponse(battler, PackMoveSelectionResponse(battler, target));
+}
+
 void HandleInputChooseTarget(enum BattlerId battler)
 {
     enum BattlerId i;
@@ -442,23 +529,19 @@ void HandleInputChooseTarget(enum BattlerId battler)
     {
         PlaySE(SE_SELECT);
         gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_HideAsMoveTarget;
-        if (gBattleStruct->gimmick.playerSelect)
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
-        else
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | (gMultiUsePlayerCursor << 8));
         EndBounceEffect(gMultiUsePlayerCursor, BOUNCE_HEALTHBOX);
         TryHideLastUsedBall();
         HideGimmickTriggerSprite();
-        BtlController_Complete(battler);
+        ConfirmMoveSelection(battler, gMultiUsePlayerCursor);
     }
     else if (JOY_NEW(B_BUTTON) || gPlayerDpadHoldFrames > 59)
     {
         PlaySE(SE_SELECT);
         gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_HideAsMoveTarget;
         gBattlerControllerFuncs[battler] = HandleInputChooseMove;
-        if (gBattleStruct->gimmick.playerSelect == 1 && gBattleStruct->gimmick.usableGimmick[battler] == GIMMICK_Z_MOVE)
+        if (gBattleStruct->gimmick.playerSelect[battler] && gBattleStruct->gimmick.usableGimmick[battler] == GIMMICK_Z_MOVE)
         {
-            gBattleStruct->gimmick.playerSelect = 0;
+            gBattleStruct->gimmick.playerSelect[battler] = FALSE;
             gBattleStruct->zmove.viewing = TRUE;
             ReloadMoveNames(battler);
         }
@@ -601,12 +684,8 @@ void HandleInputShowEntireFieldTargets(enum BattlerId battler)
     {
         PlaySE(SE_SELECT);
         HideAllTargets();
-        if (gBattleStruct->gimmick.playerSelect)
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
-        else
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | (gMultiUsePlayerCursor << 8));
         HideGimmickTriggerSprite();
-        BtlController_Complete(battler);
+        ConfirmMoveSelection(battler, gMultiUsePlayerCursor);
     }
     else if (JOY_NEW(B_BUTTON) || gPlayerDpadHoldFrames > 59)
     {
@@ -629,13 +708,9 @@ void HandleInputShowTargets(enum BattlerId battler)
     {
         PlaySE(SE_SELECT);
         HideAllTargets();
-        if (gBattleStruct->gimmick.playerSelect)
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
-        else
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | (gMultiUsePlayerCursor << 8));
         HideGimmickTriggerSprite();
         TryHideLastUsedBall();
-        BtlController_Complete(battler);
+        ConfirmMoveSelection(battler, gMultiUsePlayerCursor);
     }
     else if (JOY_NEW(B_BUTTON) || gPlayerDpadHoldFrames > 59)
     {
@@ -756,13 +831,9 @@ void HandleInputChooseMove(enum BattlerId battler)
         {
         case 0:
         default:
-            if (gBattleStruct->gimmick.playerSelect)
-                BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | RET_GIMMICK | (gMultiUsePlayerCursor << 8));
-            else
-                BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, gMoveSelectionCursor[battler] | (gMultiUsePlayerCursor << 8));
             HideGimmickTriggerSprite();
             TryHideLastUsedBall();
-            BtlController_Complete(battler);
+            ConfirmMoveSelection(battler, gMultiUsePlayerCursor);
             break;
         case 1:
             gBattlerControllerFuncs[battler] = HandleInputChooseTarget;
@@ -789,18 +860,17 @@ void HandleInputChooseMove(enum BattlerId battler)
     else if ((JOY_NEW(B_BUTTON) || gPlayerDpadHoldFrames > 59)  && !gBattleStruct->descriptionSubmenu)
     {
         PlaySE(SE_SELECT);
-        gBattleStruct->gimmick.playerSelect = FALSE;
+        gBattleStruct->gimmick.playerSelect[battler] = FALSE;
         if (gBattleStruct->zmove.viewing)
         {
             ReloadMoveNames(battler);
-            ChangeGimmickTriggerSprite(gBattleStruct->gimmick.triggerSpriteId, gBattleStruct->gimmick.playerSelect);
+            ChangeGimmickTriggerSprite(gBattleStruct->gimmick.triggerSpriteId, gBattleStruct->gimmick.playerSelect[battler]);
         }
         else
         {
-            BtlController_EmitTwoReturnValues(battler, B_COMM_TO_ENGINE, B_ACTION_EXEC_SCRIPT, 0xFFFF);
             HideGimmickTriggerSprite();
-            BtlController_Complete(battler);
             TryToHideMoveInfoWindow();
+            SubmitMoveSelectionResponse(battler, 0xFFFF);
         }
     }
     else if (JOY_NEW(DPAD_LEFT) && !gBattleStruct->zmove.viewing)
@@ -927,7 +997,7 @@ void HandleInputChooseMove(enum BattlerId battler)
 static void RefreshMoveSelectionAfterGimmickChange(enum BattlerId battler)
 {
     gBattleStruct->zmove.viewing = FALSE;
-    MoveSelectionDestroyCursorAt(battler);
+    MoveSelectionDestroyCursorAt(gMoveSelectionCursor[battler]);
     MoveSelectionDisplayMoveNames(battler);
     MoveSelectionCreateCursorAt(gMoveSelectionCursor[battler], 0);
     if (B_SHOW_EFFECTIVENESS)
@@ -943,12 +1013,12 @@ static bool32 TryToggleRequestedGimmick(enum BattlerId battler, enum Gimmick gim
     if (!CanActivateGimmick(battler, gimmick))
         return FALSE;
 
-    selectGimmick = !(gBattleStruct->gimmick.playerSelect
+    selectGimmick = !(gBattleStruct->gimmick.playerSelect[battler]
                    && gBattleStruct->gimmick.usableGimmick[battler] == gimmick);
 
     // Shortcut buttons choose one pending gimmick at a time; activation still uses the existing battle checks.
     gBattleStruct->gimmick.usableGimmick[battler] = gimmick;
-    gBattleStruct->gimmick.playerSelect = selectGimmick;
+    gBattleStruct->gimmick.playerSelect[battler] = selectGimmick;
     if (gimmick == GIMMICK_Z_MOVE)
     {
         struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
@@ -2177,9 +2247,12 @@ void PlayerHandleChooseMove(enum BattlerId battler)
             gBattleMons[typeBattler].types[1] = moveInfo->battlerTypes[typeBattler][1];
             gBattleMons[typeBattler].types[2] = moveInfo->battlerTypes[typeBattler][2];
         }
-        gBattleStruct->gimmick.usableGimmick[battler] = moveInfo->usableGimmick;
+        if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+            gBattleStruct->gimmick.usableGimmick[battler] = GetFirstLocallyUsableGimmick(battler);
+        else
+            gBattleStruct->gimmick.usableGimmick[battler] = moveInfo->usableGimmick;
 
-        gBattleStruct->gimmick.playerSelect = FALSE;
+        gBattleStruct->gimmick.playerSelect[battler] = FALSE;
         InitMoveSelectionsVarsAndStrings(battler);
         TryToAddMoveInfoWindow();
 

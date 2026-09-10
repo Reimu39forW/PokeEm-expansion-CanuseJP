@@ -71,9 +71,9 @@ bool32 CanTerastallize(enum BattlerId battler)
     if (gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE && !IsOnPlayerSide(battler))
         return FALSE;
 
-    if (TESTING || !BattlerIsPlayer(battler))
+    if (TESTING || !BattlerIsPlayer(battler) || (gBattleTypeFlags & BATTLE_TYPE_PALACE))
     {
-        // Skip all other checks in this block, go to HasTrainerUsedGimmick
+        // Battle Palace handles both sides through AI, without requiring the player's Tera Orb state.
     }
     else if (!CheckBagHasItem(ITEM_TERA_ORB, 1))
     {
