@@ -4177,9 +4177,9 @@ static void ApplyChosenGimmickFromController(enum BattlerId battler)
         return;
 
     // Non-link AI, recorded battles, and the test runner historically return
-    // only RET_GIMMICK. Their chosen gimmick was already validated and stored
-    // locally, so preserve that protocol instead of applying link validation.
-    if (!(gBattleTypeFlags & BATTLE_TYPE_LINK) && gimmick == GIMMICK_NONE)
+    // only the lower 16 bits. Their chosen gimmick was already validated and
+    // stored locally, so only decode the extended response in link battles.
+    if (!(gBattleTypeFlags & BATTLE_TYPE_LINK))
     {
         gimmick = gBattleStruct->gimmick.usableGimmick[battler];
         if (gimmick > GIMMICK_NONE && gimmick < GIMMICKS_COUNT)
