@@ -111,6 +111,7 @@ static const u8 sText_GoTwoPkmn [] = _("{JPN}ゆけっ！ {B_PLAYER_MON1_NAME}�
 static const u8 sText_GoPkmn2 [] = _("{JPN}ゆけっ！ {B_BUFF1}！");
 static const u8 sText_DoItPkmn [] = _("{JPN}いってこい！ {B_BUFF1}！");
 static const u8 sText_GoForItPkmn [] = _("{JPN}がんばれ！ {B_BUFF1}！");
+static const u8 sText_BeCarefulPkmn [] = _("{JPN}きをつけろ！ {B_PLAYER_MON1_NAME}！");
 static const u8 sText_JustALittleMorePkmn [] = _("{JPN}もうすこしだ！ がんばれ {B_BUFF1}！"); //currently unused, will require code changes
 static const u8 sText_YourFoesWeakGetEmPkmn [] = _("{JPN}あいてが よわっている!\nチャンスだ！ {B_BUFF1}！");
 static const u8 sText_LinkPartnerSentOutPkmn1GoPkmn [] = _("{JPN}{B_LINK_PARTNER_NAME}は {B_LINK_PLAYER_MON1_NAME}を\nくりだした！ ゆけっ！ {B_LINK_PLAYER_MON2_NAME}！");
@@ -587,7 +588,6 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_SLOWSTARTENTERS]                      = COMPOUND_STRING("{JPN}{B_SCR_NAME_WITH_PREFIX}は スロースタートだ！"),
     [STRINGID_SLOWSTARTEND]                         = COMPOUND_STRING("{JPN}{B_ATK_NAME_WITH_PREFIX}は ちょうしを とりもどした！"),
     [STRINGID_SOLARPOWERHPDROP]                     = COMPOUND_STRING("{JPN}{B_ATK_NAME_WITH_PREFIX}は {B_ATK_ABILITY}で\nHPを けずられた！"), // Not in Gen 5+
-    [STRINGID_AFTERMATHDMG]                         = COMPOUND_STRING("{JPN}{B_ATK_NAME_WITH_PREFIX}は ダメージを うけた！"),
     [STRINGID_ANTICIPATIONACTIVATES]                = COMPOUND_STRING("{JPN}{B_SCR_NAME_WITH_PREFIX}は みぶるいした！"),
     [STRINGID_FOREWARNACTIVATES]                    = COMPOUND_STRING("{JPN}{B_SCR_ABILITY}で\n{B_EFF_NAME_WITH_PREFIX2}の {B_BUFF1}を よちした！"),
     [STRINGID_ICEBODYHPGAIN]                        = COMPOUND_STRING("{JPN}{B_ATK_NAME_WITH_PREFIX}の {B_ATK_ABILITY}で\nHPが すこし かいふくした！"), // Not in Gen 5+
@@ -889,7 +889,6 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_REFLECTWOREOFF]                       = COMPOUND_STRING("{JPN}{B_DEF_TEAM1} リフレクター　がきえた！"),
     [STRINGID_LIGHTSCREENWOREOFF]                   = COMPOUND_STRING("{JPN}{B_DEF_TEAM1} ひかりのかべが　きえた！"),
     [STRINGID_AURORAVEILWOREOFF]                    = COMPOUND_STRING("{JPN}{B_DEF_TEAM1} オーロラベール　がきえた！"),
-    [STRINGID_STICKYWEBDISAPPEAREDFROMYOU]          = COMPOUND_STRING("{JPN}こちらの まわりの\nねばねばネットが きえた！"),
 
 };
 
@@ -1068,8 +1067,8 @@ const u16 gProtectLikeUsedStringIds[] =
 
 const u16 gBrokeProtectionStringIds[] =
 {
-    [B_MSG_FEINT]           = STRINGID_FELLFORFEINT,
-    [B_MSG_HYPERSPACE_FURY] = STRINGID_BROKETHROUGHPROTECTION,
+    [B_MSG_FEINT]                 = STRINGID_FELLFORFEINT,
+    [B_MSG_BROKE_THROUGH_PROTECT] = STRINGID_BROKETHROUGHPROTECTION,
 };
 
 const u16 gReflectLightScreenSafeguardStringIds[] =
@@ -1440,7 +1439,7 @@ const u16 gPartyCureStatusStringIds[] =
 
 const u16 gHurtByStringIds[] =
 {
-    [B_MSG_HURT] = STRINGID_AFTERMATHDMG,
+    [B_MSG_HURT] = STRINGID_PKMNWASHURT,
     [B_MSG_HURT_BY_ITEM] = STRINGID_PKMNHURTSWITH,
 };
 
@@ -1832,6 +1831,17 @@ static const struct BattleWindowText sTextOnWindowsInfo_Normal[] =
         .color.background = TEXT_DYNAMIC_COLOR_5,
         .color.accent = TEXT_DYNAMIC_COLOR_5,
         .color.shadow = TEXT_DYNAMIC_COLOR_6,
+    },
+    [B_CATCH_OR_NOT] = {
+        .fillValue = PIXEL_FILL(0xE),
+        .fontId = FONT_NORMAL,
+        .x = 0,
+        .y = 1,
+        .speed = 0,
+        .color.foreground = 13,
+        .color.background = 14,
+        .color.accent = 14,
+        .color.shadow = 15,
     },
 };
 
@@ -2511,6 +2521,10 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
                         stringPtr = sText_InGamePartnerSentOutZGoN; // Player is on left
                     else
                         stringPtr = sText_InGamePartnerSentOutNGoZ; // Partner on left
+                }
+                else if (gBattleTypeFlags & BATTLE_TYPE_RAID)
+                {
+                    stringPtr = sText_BeCarefulPkmn;
                 }
                 else
                 {
