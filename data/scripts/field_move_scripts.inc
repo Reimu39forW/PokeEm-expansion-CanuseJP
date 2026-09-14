@@ -423,7 +423,7 @@ EventScript_FailSweetScent::
 	end
 
 Text_FailSweetScent:
-	.string "{JPN}ここには/nなにも いないようだ{0xB0}{0xB0}$"
+	.string "{JPN}ここには\nなにも いないようだ{0xB0}{0xB0}$"
 
 EventScript_UseDefog::
 	lockall
