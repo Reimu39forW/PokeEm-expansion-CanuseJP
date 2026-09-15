@@ -234,12 +234,14 @@ struct MovePPInfo
 struct ChooseMoveStruct
 {
     enum Move moves[MAX_MON_MOVES];
+    enum Move zMoves[MAX_MON_MOVES]; // Authoritative display move for each slot in link battles.
     u8 currentPP[MAX_MON_MOVES];
     u8 maxPP[MAX_MON_MOVES];
     enum Species species;
     enum Type monTypes[3];
     enum Type battlerTypes[MAX_BATTLERS_COUNT][3];
     enum Gimmick usableGimmick;
+    u8 usableGimmickMask; // All gimmicks the authoritative link host permits.
     struct ZMoveData zmove;
 };
 

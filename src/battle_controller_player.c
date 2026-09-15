@@ -94,9 +94,11 @@ static void PrintLinkStandbyMsg(void);
 static void ReloadMoveNames(enum BattlerId battler);
 static void RefreshMoveSelectionAfterGimmickChange(enum BattlerId battler);
 static bool32 TryToggleRequestedGimmick(enum BattlerId battler, enum Gimmick gimmick);
-static bool32 TryToggleMegaOrZMoveGimmick(enum BattlerId battler, enum Move move);
-static enum Gimmick GetFirstLocallyUsableGimmick(enum BattlerId battler);
-static u8 GetLocallyUsableGimmickMask(enum BattlerId battler, enum Move move);
+static bool32 TryToggleMegaOrZMoveGimmick(enum BattlerId battler, u32 movePosition);
+static enum Gimmick GetFirstUsableGimmick(u8 usableGimmickMask);
+static bool32 IsGimmickAvailableForMoveSelection(enum BattlerId battler, enum Gimmick gimmick);
+static u8 GetMoveSelectionUsableGimmickMask(enum BattlerId battler, u32 movePosition);
+static enum Move GetMoveSelectionZMove(enum BattlerId battler, u32 movePosition);
 static void ConfirmMoveSelection(enum BattlerId battler, enum BattlerId target);
 static void SubmitMoveSelectionResponse(enum BattlerId battler, u32 response);
 static void TrySendMoveSelectionResponse(enum BattlerId battler);
@@ -420,26 +422,58 @@ static void HandleInputChooseAction(enum BattlerId battler)
     }
 }
 
-static enum Gimmick GetFirstLocallyUsableGimmick(enum BattlerId battler)
+static enum Gimmick GetFirstUsableGimmick(u8 usableGimmickMask)
 {
     for (enum Gimmick gimmick = GIMMICK_NONE + 1; gimmick < GIMMICKS_COUNT; gimmick++)
     {
-        if (CanActivateGimmick(battler, gimmick))
+        if (usableGimmickMask & (1u << gimmick))
             return gimmick;
     }
 
     return GIMMICK_NONE;
 }
 
-static u8 GetLocallyUsableGimmickMask(enum BattlerId battler, enum Move move)
+static bool32 IsGimmickAvailableForMoveSelection(enum BattlerId battler, enum Gimmick gimmick)
+{
+    if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+    {
+        struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+
+        // A non-master console does not own a complete authoritative gBattleMons.
+        return moveInfo->usableGimmickMask & (1u << gimmick);
+    }
+
+    return CanActivateGimmick(battler, gimmick);
+}
+
+static enum Move GetMoveSelectionZMove(enum BattlerId battler, u32 movePosition)
+{
+    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+
+    if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+        return moveInfo->zMoves[movePosition];
+
+    return GetUsableZMove(battler, moveInfo->moves[movePosition]);
+}
+
+static u8 GetMoveSelectionUsableGimmickMask(enum BattlerId battler, u32 movePosition)
 {
     u8 mask = 0;
+    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
+
+    if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+    {
+        mask = moveInfo->usableGimmickMask;
+        if (!(moveInfo->zmove.possibleZMoves[battler] & (1u << movePosition)))
+            mask &= ~(1u << GIMMICK_Z_MOVE);
+        return mask;
+    }
 
     for (enum Gimmick gimmick = GIMMICK_NONE + 1; gimmick < GIMMICKS_COUNT; gimmick++)
     {
         if (!CanActivateGimmick(battler, gimmick))
             continue;
-        if (gimmick == GIMMICK_Z_MOVE && GetUsableZMove(battler, move) == MOVE_NONE)
+        if (gimmick == GIMMICK_Z_MOVE && GetUsableZMove(battler, moveInfo->moves[movePosition]) == MOVE_NONE)
             continue;
 
         mask |= 1u << gimmick;
@@ -450,10 +484,8 @@ static u8 GetLocallyUsableGimmickMask(enum BattlerId battler, enum Move move)
 
 static u32 PackMoveSelectionResponse(enum BattlerId battler, enum BattlerId target)
 {
-    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
-    enum Move move = moveInfo->moves[gMoveSelectionCursor[battler]];
     enum Gimmick selected = gBattleStruct->gimmick.usableGimmick[battler];
-    u8 availableMask = GetLocallyUsableGimmickMask(battler, move);
+    u8 availableMask = GetMoveSelectionUsableGimmickMask(battler, gMoveSelectionCursor[battler]);
     u32 response = (gMoveSelectionCursor[battler] & RET_MOVE_POSITION_MASK)
                  | (target << RET_TARGET_SHIFT)
                  | ((u32)availableMask << RET_GIMMICK_MASK_SHIFT);
@@ -980,7 +1012,7 @@ void HandleInputChooseMove(enum BattlerId battler)
             MoveSelectionDisplayMoveType(battler);
         }
     }
-    else if (JOY_NEW(R_BUTTON) && TryToggleMegaOrZMoveGimmick(battler, moveInfo->moves[gMoveSelectionCursor[battler]]))
+    else if (JOY_NEW(R_BUTTON) && TryToggleMegaOrZMoveGimmick(battler, gMoveSelectionCursor[battler]))
     {
     }
     else if (JOY_NEW(B_MOVE_DESCRIPTION_BUTTON) &&
@@ -1010,7 +1042,7 @@ static bool32 TryToggleRequestedGimmick(enum BattlerId battler, enum Gimmick gim
 {
     bool32 selectGimmick;
 
-    if (!CanActivateGimmick(battler, gimmick))
+    if (!IsGimmickAvailableForMoveSelection(battler, gimmick))
         return FALSE;
 
     selectGimmick = !(gBattleStruct->gimmick.playerSelect[battler]
@@ -1022,7 +1054,10 @@ static bool32 TryToggleRequestedGimmick(enum BattlerId battler, enum Gimmick gim
     if (gimmick == GIMMICK_Z_MOVE)
     {
         struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
-        AssignUsableZMoves(battler, moveInfo->moves);
+        if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+            gBattleStruct->zmove.possibleZMoves[battler] = moveInfo->zmove.possibleZMoves[battler];
+        else
+            AssignUsableZMoves(battler, moveInfo->moves);
         gBattleStruct->zmove.viable = (gBattleStruct->zmove.possibleZMoves[battler] & (1u << gMoveSelectionCursor[battler])) != 0;
     }
     DestroyGimmickTriggerSprite();
@@ -1038,7 +1073,7 @@ static bool32 TryToggleRequestedGimmick(enum BattlerId battler, enum Gimmick gim
     return TRUE;
 }
 
-static bool32 TryToggleMegaOrZMoveGimmick(enum BattlerId battler, enum Move move)
+static bool32 TryToggleMegaOrZMoveGimmick(enum BattlerId battler, u32 movePosition)
 {
     static const enum Gimmick sMegaOrZMoveGimmicks[] =
     {
@@ -1051,9 +1086,7 @@ static bool32 TryToggleMegaOrZMoveGimmick(enum BattlerId battler, enum Move move
     {
         enum Gimmick gimmick = sMegaOrZMoveGimmicks[i];
 
-        if (!CanActivateGimmick(battler, gimmick))
-            continue;
-        if (gimmick == GIMMICK_Z_MOVE && GetUsableZMove(battler, move) == MOVE_NONE)
+        if (!(GetMoveSelectionUsableGimmickMask(battler, movePosition) & (1u << gimmick)))
             continue;
 
         return TryToggleRequestedGimmick(battler, gimmick);
@@ -1066,8 +1099,7 @@ static void ReloadMoveNames(enum BattlerId battler)
 {
     if (gBattleStruct->zmove.viable && !gBattleStruct->zmove.viewing)
     {
-        struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
-        MoveSelectionDisplayZMove(GetUsableZMove(battler, moveInfo->moves[gMoveSelectionCursor[battler]]), battler);
+        MoveSelectionDisplayZMove(GetMoveSelectionZMove(battler, gMoveSelectionCursor[battler]), battler);
     }
     else
     {
@@ -2248,15 +2280,21 @@ void PlayerHandleChooseMove(enum BattlerId battler)
             gBattleMons[typeBattler].types[2] = moveInfo->battlerTypes[typeBattler][2];
         }
         if (gBattleTypeFlags & BATTLE_TYPE_LINK)
-            gBattleStruct->gimmick.usableGimmick[battler] = GetFirstLocallyUsableGimmick(battler);
+        {
+            gBattleMons[battler].species = moveInfo->species;
+            gBattleStruct->gimmick.usableGimmick[battler] = GetFirstUsableGimmick(moveInfo->usableGimmickMask);
+            gBattleStruct->zmove.possibleZMoves[battler] = moveInfo->zmove.possibleZMoves[battler];
+        }
         else
+        {
             gBattleStruct->gimmick.usableGimmick[battler] = moveInfo->usableGimmick;
+            AssignUsableZMoves(battler, moveInfo->moves);
+        }
 
         gBattleStruct->gimmick.playerSelect[battler] = FALSE;
         InitMoveSelectionsVarsAndStrings(battler);
         TryToAddMoveInfoWindow();
 
-        AssignUsableZMoves(battler, moveInfo->moves);
         gBattleStruct->zmove.viable = (gBattleStruct->zmove.possibleZMoves[battler] & (1u << gMoveSelectionCursor[battler])) != 0;
 
         if (!IsGimmickTriggerSpriteActive())

@@ -4167,7 +4167,6 @@ static void ApplyChosenGimmickFromController(enum BattlerId battler)
 {
     u32 response = GetMoveSelectionResponse(battler);
     enum Gimmick gimmick = RET_GIMMICK_ID(response);
-    u8 availableMask = RET_GIMMICK_MASK(response);
     u8 movePosition = response & RET_MOVE_POSITION_MASK;
 
     gBattleStruct->gimmick.playerSelect[battler] = FALSE;
@@ -4192,9 +4191,10 @@ static void ApplyChosenGimmickFromController(enum BattlerId battler)
 
     if (gimmick <= GIMMICK_NONE || gimmick >= GIMMICKS_COUNT)
         goto invalid;
-    if ((gBattleTypeFlags & BATTLE_TYPE_LINK) && !(availableMask & (1u << gimmick)))
-        goto invalid;
-    if (availableMask != 0 && !(availableMask & (1u << gimmick)))
+
+    // Controller data is only a selection request. The link master decides
+    // against its complete battle state before scheduling the activation.
+    if (!CanActivateGimmick(battler, gimmick))
         goto invalid;
     if (gimmick == GIMMICK_Z_MOVE
      && GetUsableZMove(battler, gBattleMons[battler].moves[movePosition]) == MOVE_NONE)
@@ -4328,7 +4328,7 @@ static void HandleTurnActionSelectionState(void)
                     }
                     else
                     {
-                        struct ChooseMoveStruct moveInfo;
+                        struct ChooseMoveStruct moveInfo = {0};
 
                         moveInfo.zmove = gBattleStruct->zmove;
                         moveInfo.species = gBattleMons[battler].species;
@@ -4342,15 +4342,27 @@ static void HandleTurnActionSelectionState(void)
                             moveInfo.battlerTypes[typeBattler][2] = gBattleMons[typeBattler].types[2];
                         }
                         moveInfo.usableGimmick = gBattleStruct->gimmick.usableGimmick[battler];
+                        if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+                        {
+                            moveInfo.usableGimmickMask = GetUsableGimmickMask(battler);
+                            moveInfo.zmove.possibleZMoves[battler] = 0;
+                        }
 
                         for (i = 0; i < MAX_MON_MOVES; i++)
                         {
                             moveInfo.moves[i] = gBattleMons[battler].moves[i];
+                            if ((gBattleTypeFlags & BATTLE_TYPE_LINK)
+                             && (moveInfo.usableGimmickMask & (1u << GIMMICK_Z_MOVE)))
+                                moveInfo.zMoves[i] = GetUsableZMove(battler, moveInfo.moves[i]);
                             moveInfo.currentPP[i] = gBattleMons[battler].pp[i];
                             moveInfo.maxPP[i] = CalculatePPWithBonus(
                                                             gBattleMons[battler].moves[i],
                                                             gBattleMons[battler].ppBonuses,
                                                             i);
+                            if ((gBattleTypeFlags & BATTLE_TYPE_LINK)
+                             && moveInfo.zMoves[i] != MOVE_NONE
+                             && moveInfo.currentPP[i] != 0)
+                                moveInfo.zmove.possibleZMoves[battler] |= 1u << i;
                         }
 
                         BtlController_EmitChooseMove(battler, B_COMM_TO_CONTROLLER, IsDoubleBattle() != 0, FALSE, &moveInfo);

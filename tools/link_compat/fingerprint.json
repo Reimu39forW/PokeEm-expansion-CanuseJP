@@ -6,7 +6,7 @@
       "battle_volatile_layout": "683e2722bdfe5553ae86ac10242878854ac260ba16d8a5fe6545920766313344",
       "battle_volatiles": "49f07bad9c2522920b83565e5e722d6d59ee9fad6ed46071c408c03ee0862742",
       "box_pokemon": "7269b31bf963339c61fb6c4110c2bfd16099150dd668ac95a35229bdcce7e7f0",
-      "choose_move_packet": "0e323913f4b5936dfd284538ea07e0918f7e85469869433b1d68061cacf24ad0",
+      "choose_move_packet": "480358c2cf5f949539066a6dee068ca69fb65fe1eed43e1771bf46cf1409d664",
       "contest_appeal_results": "d656f2a14e0d752229c00375183d44c9c388dc95ba54d8d9e7615ec5e889b951",
       "contest_excitement": "7e496719d5122779ffd3693e7a83095b50950b4e1bdb60ee9b47eceb91de3b06",
       "contest_move_selection_packet": "e812e01519bcd5dba5c5ee49c660a80a07b388761ee6e6f72ab522ed10ac317f",
@@ -32,7 +32,7 @@
       "battle_controller_commands": "e75651b87efc2adb4441c6f9d016b7a5c87ad8e8dbfa2f59301fdec794e1a3cf",
       "battle_controller_requests": "e96abd3b5da6767581339bf8f3a569132350091d0a8e19167827c5a68d8a4fe5",
       "battle_controller_returns": "9b30245020fa805c391df70ee6976e53fe60887b903df3cb174dd7e52cd4d304",
-      "battle_gimmicks": "efa8e37a44255b7092b09923104bfb18e9885de80615ea804f2f05f99bc2dd7a",
+      "battle_gimmicks": "bc2337de3055c7d96299c5b9baeafea99984b1810527e2da1dc3f39b1e63500e",
       "battle_sync_config": "bcabdf05654476c9f437c86f826408a14fbb5ce58712c3af9ce2e2201128a0e0",
       "battle_type_flags": "ff98d28d17414754d12b9a0be3509b63bb33233738d16c0a0e4e32edd3ddf935",
       "contest_gimmicks": "d037568d4ca0ccb419b59d31866e1cbe98fcf02754c33a64ff6f924ac03d38ab",
@@ -41,13 +41,13 @@
       "union_room_activities": "9024f4f9a004353a2222be88d9d6768d42d00f21df05a589394ff353895686cf"
     }
   },
-  "data_layout_version": 3,
+  "data_layout_version": 4,
   "fingerprints": {
-    "combined": "be9f4ec45c4550cd403839ea4fd1ecb340298e832431cb37cacaca10c0a1b34c",
-    "data_layout": "8c3aafe51ee577147f139a445365ab6954fee0cf643d50e7ae44e9efc71c06de",
-    "protocol": "a182fbf00cccd61596b99f4b8fafc140be3397945eeebb115de2a7fc30e4964c"
+    "combined": "bb5fce108b23641399606121916b2e6fca80a03ad2a497d4654c136d79ed3d61",
+    "data_layout": "dee3431575515ef43c18664843d07090629779b4fe52e0820f8a687d66e0fcf9",
+    "protocol": "a7f71e63553900dffb08b83828b204aed6cda99dffd8c44c53a834bbad804812"
   },
-  "link_compat_version": 4,
+  "link_compat_version": 5,
   "schema_version": 1,
   "summary": {
     "buffer_sizes": {

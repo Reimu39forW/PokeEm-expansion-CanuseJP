@@ -49,6 +49,7 @@
 #define FRONTIER_CREATOR_TYPE_DIGITS    2
 #define FRONTIER_CREATOR_IV_DIGITS      2
 #define FRONTIER_CREATOR_EV_DIGITS      3
+#define FRONTIER_ITEM_GIVER_DIGITS      3
 #define FRONTIER_CREATOR_PREVIEW_X      196
 #define FRONTIER_CREATOR_PREVIEW_Y      40
 #define FRONTIER_CREATOR_PREVIEW_PAL    14
@@ -302,6 +303,18 @@ static const struct FrontierHubAutoItem sFrontierHubAutoItems[] =
     { ITEM_MENTAL_HERB, 999 }, // メンタルハーブ
     { ITEM_ROOM_SERVICE, 999 }, // ルームサービス
     { ITEM_RED_CARD, 999 }, // レッドカード
+    { ITEM_BOOSTER_ENERGY, 999 }, // ブーストエナジー
+    { ITEM_CLEAR_AMULET, 999 }, // クリアチャーム
+    { ITEM_COVERT_CLOAK, 999 }, // おんみつマント
+    { ITEM_FOCUS_BAND, 999 }, // きあいのハチマキ
+    { ITEM_KINGS_ROCK, 999 }, // おうじゃのしるし
+    { ITEM_LAX_INCENSE, 999 }, // のんきのおこう
+    { ITEM_LEEK, 999 }, // ながねぎ
+    { ITEM_LOADED_DICE, 999 }, // いかさまダイス
+    { ITEM_PUNCHING_GLOVE, 999 }, // パンチグローブ
+    { ITEM_QUICK_POWDER, 999 }, // スピードパウダー
+    { ITEM_THICK_CLUB, 999 }, // ふといホネ
+    { ITEM_WISE_GLASSES, 999 }, // ものしりメガネ
     { ITEM_KEE_BERRY, 999 }, // アッキのみ
     { ITEM_IAPAPA_BERRY, 999 }, // イアのみ
     { ITEM_PASSHO_BERRY, 999 }, // イトケのみ
@@ -309,6 +322,7 @@ static const struct FrontierHubAutoItem sFrontierHubAutoItems[] =
     { ITEM_WIKI_BERRY, 999 }, // ウイのみ
     { ITEM_PAYAPA_BERRY, 999 }, // ウタンのみ
     { ITEM_OCCA_BERRY, 999 }, // オッカのみ
+    { ITEM_SITRUS_BERRY, 999 }, // オボンのみ
     { ITEM_CHESTO_BERRY, 999 }, // カゴのみ
     { ITEM_KASIB_BERRY, 999 }, // カシブのみ
     { ITEM_SALAC_BERRY, 999 }, // カムラのみ
@@ -323,6 +337,7 @@ static const struct FrontierHubAutoItem sFrontierHubAutoItems[] =
     { ITEM_MARANGA_BERRY, 999 }, // タラプのみ
     { ITEM_TANGA_BERRY, 999 }, // タンガのみ
     { ITEM_LIECHI_BERRY, 999 }, // チイラのみ
+    { ITEM_LUM_BERRY, 999 }, // ラムのみ
     { ITEM_ENIGMA_BERRY_E_READER, 999 }, // ナゾのみ
     { ITEM_COLBUR_BERRY, 999 }, // ナモのみ
     { ITEM_COBA_BERRY, 999 }, // バコウのみ
@@ -1364,6 +1379,7 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_PIKACHU_POP_STAR,
     SPECIES_PIKACHU_PHD,
     SPECIES_PIKACHU_LIBRE,
+    SPECIES_PIKACHU_ORIGINAL,
     SPECIES_PIKACHU_HOENN,
     SPECIES_PIKACHU_SINNOH,
     SPECIES_PIKACHU_UNOVA,
@@ -1414,6 +1430,7 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_ROTOM_FAN,
     SPECIES_ROTOM_MOW,
     SPECIES_BASCULIN_BLUE_STRIPED,
+    SPECIES_BASCULIN_WHITE_STRIPED,
     SPECIES_DEERLING_SUMMER,
     SPECIES_DEERLING_AUTUMN,
     SPECIES_DEERLING_WINTER,
@@ -1444,13 +1461,16 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_FLABEBE_YELLOW,
     SPECIES_FLABEBE_ORANGE,
     SPECIES_FLABEBE_BLUE,
+    SPECIES_FLABEBE_WHITE,
     SPECIES_FLOETTE_YELLOW,
     SPECIES_FLOETTE_ORANGE,
     SPECIES_FLOETTE_BLUE,
+    SPECIES_FLOETTE_WHITE,
     SPECIES_FLOETTE_ETERNAL,
     SPECIES_FLORGES_YELLOW,
     SPECIES_FLORGES_ORANGE,
     SPECIES_FLORGES_BLUE,
+    SPECIES_FLORGES_WHITE,
     SPECIES_FURFROU_HEART,
     SPECIES_FURFROU_STAR,
     SPECIES_FURFROU_DIAMOND,
@@ -1490,6 +1510,8 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_MINIOR_BLUE,
     SPECIES_MINIOR_INDIGO,
     SPECIES_MINIOR_VIOLET,
+    SPECIES_MAGEARNA_ORIGINAL,
+    SPECIES_TOXTRICITY_LOW_KEY,
     SPECIES_SINISTEA_ANTIQUE,
     SPECIES_POLTEAGEIST_ANTIQUE,
     SPECIES_ALCREMIE_STRAWBERRY_RUBY_CREAM,
@@ -1605,6 +1627,7 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_SQUAWKABILLY,
     SPECIES_SQUAWKABILLY_BLUE,
     SPECIES_SQUAWKABILLY_YELLOW,
+    SPECIES_SQUAWKABILLY_WHITE,
     SPECIES_NACLI,
     SPECIES_NACLSTACK,
     SPECIES_GARGANACL,
@@ -1690,6 +1713,9 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_IRON_VALIANT,
     SPECIES_KORAIDON,
     SPECIES_MIRAIDON,
+    SPECIES_TAUROS_PALDEA_COMBAT,
+    SPECIES_TAUROS_PALDEA_BLAZE,
+    SPECIES_TAUROS_PALDEA_AQUA,
     SPECIES_WOOPER_PALDEA,
     SPECIES_WALKING_WAKE,
     SPECIES_IRON_LEAVES,
@@ -1705,12 +1731,14 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_FEZANDIPITI,
     SPECIES_OGERPON_TEAL,
     SPECIES_OGERPON,
+    SPECIES_URSALUNA_BLOODMOON,
     SPECIES_ARCHALUDON,
     SPECIES_HYDRAPPLE,
     SPECIES_GOUGING_FIRE,
     SPECIES_RAGING_BOLT,
     SPECIES_IRON_BOULDER,
     SPECIES_IRON_CROWN,
+    SPECIES_TERAPAGOS_NORMAL,
     SPECIES_PECHARUNT,
     SPECIES_LUGIA_SHADOW,
     SPECIES_MOTHIM_SANDY,
@@ -1806,6 +1834,22 @@ static const u16 sFrontierCreatorGmaxCapableSpecies[] =
 
 static const enum Item sFrontierHubGiveItems[] =
 {
+    // 種族専用アイテム
+    ITEM_LIGHT_BALL,
+    ITEM_LEEK,
+    ITEM_THICK_CLUB,
+    ITEM_LUCKY_PUNCH,
+    ITEM_METAL_POWDER,
+    ITEM_QUICK_POWDER,
+    ITEM_DEEP_SEA_SCALE,
+    ITEM_DEEP_SEA_TOOTH,
+
+    // ドライブ
+    ITEM_DOUSE_DRIVE,
+    ITEM_SHOCK_DRIVE,
+    ITEM_BURN_DRIVE,
+    ITEM_CHILL_DRIVE,
+
     // メモリ
     ITEM_BUG_MEMORY,
     ITEM_DARK_MEMORY,
@@ -2934,7 +2978,8 @@ static void FrontierHub_GiveAutoItems(void)
 
     for (i = 0; sFrontierHubAutoItems[i].itemId != ITEM_NONE; i++)
     {
-        if (CheckBagHasSpace(sFrontierHubAutoItems[i].itemId, sFrontierHubAutoItems[i].quantity))
+        if (!CheckBagHasItem(sFrontierHubAutoItems[i].itemId, 1)
+         && CheckBagHasSpace(sFrontierHubAutoItems[i].itemId, sFrontierHubAutoItems[i].quantity))
             AddBagItem(sFrontierHubAutoItems[i].itemId, sFrontierHubAutoItems[i].quantity);
     }
 }
@@ -2985,8 +3030,15 @@ static void FrontierItemGiver_DrawScreen(u8 taskId)
     else
         StringAppend(gStringVar4, COMPOUND_STRING("このどうぐを もらえます{CLEAR_TO 90}\n"));
 
-    StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}えらぶ"));
-    StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n{A_BUTTON}もらう {B_BUTTON}やめる"));
+    StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}えらぶ {LEFT_ARROW}{RIGHT_ARROW}けた:"));
+    ConvertIntToDecimalStringN(
+        gStringVar1,
+        sFrontierCreatorPowersOfTen[gTasks[taskId].tDigit],
+        STR_CONV_MODE_LEFT_ALIGN,
+        FRONTIER_ITEM_GIVER_DIGITS
+    );
+    StringAppend(gStringVar4, gStringVar1);
+    StringAppend(gStringVar4, COMPOUND_STRING("\n{A_BUTTON}もらう {B_BUTTON}やめる"));
 
     FrontierCreator_PrintWindow(windowId);
 }
@@ -3006,6 +3058,7 @@ static void Task_FrontierItemGiver_SelectItem(u8 taskId)
 {
     u16 itemCount = FrontierItemGiver_GetItemCount();
     enum Item itemId;
+    s32 index;
 
     if (itemCount == 0)
     {
@@ -3017,22 +3070,32 @@ static void Task_FrontierItemGiver_SelectItem(u8 taskId)
     if (JOY_NEW(DPAD_UP))
     {
         PlaySE(SE_SELECT);
-
-        if (gTasks[taskId].tInput == 0)
-            gTasks[taskId].tInput = itemCount - 1;
-        else
-            gTasks[taskId].tInput--;
-
+        index = gTasks[taskId].tInput - sFrontierCreatorPowersOfTen[gTasks[taskId].tDigit];
+        index %= itemCount;
+        if (index < 0)
+            index += itemCount;
+        gTasks[taskId].tInput = index;
         FrontierItemGiver_DrawScreen(taskId);
     }
     else if (JOY_NEW(DPAD_DOWN))
     {
         PlaySE(SE_SELECT);
-
-        gTasks[taskId].tInput++;
-        if (gTasks[taskId].tInput >= itemCount)
-            gTasks[taskId].tInput = 0;
-
+        index = gTasks[taskId].tInput + sFrontierCreatorPowersOfTen[gTasks[taskId].tDigit];
+        gTasks[taskId].tInput = index % itemCount;
+        FrontierItemGiver_DrawScreen(taskId);
+    }
+    else if (JOY_NEW(DPAD_LEFT))
+    {
+        PlaySE(SE_SELECT);
+        if (gTasks[taskId].tDigit > 0)
+            gTasks[taskId].tDigit--;
+        FrontierItemGiver_DrawScreen(taskId);
+    }
+    else if (JOY_NEW(DPAD_RIGHT))
+    {
+        PlaySE(SE_SELECT);
+        if (gTasks[taskId].tDigit < FRONTIER_ITEM_GIVER_DIGITS - 1)
+            gTasks[taskId].tDigit++;
         FrontierItemGiver_DrawScreen(taskId);
     }
 

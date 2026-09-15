@@ -38,6 +38,19 @@ void AssignUsableGimmicks(void)
     }
 }
 
+u8 GetUsableGimmickMask(enum BattlerId battler)
+{
+    u8 mask = 0;
+
+    for (enum Gimmick gimmick = GIMMICK_NONE + 1; gimmick < GIMMICKS_COUNT; ++gimmick)
+    {
+        if (CanActivateGimmick(battler, gimmick))
+            mask |= 1u << gimmick;
+    }
+
+    return mask;
+}
+
 // Returns whether a battler is able to use a gimmick. Checks consumption and gimmick specific functions.
 bool32 CanActivateGimmick(enum BattlerId battler, enum Gimmick gimmick)
 {
