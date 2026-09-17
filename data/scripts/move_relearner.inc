@@ -114,4 +114,4 @@ MoveRelearner_Text_FrontierFullMoves::
 	.string "FRONTIER MOVES$"
 
 MoveRelearner_Text_FrontierFullMoveLWR::
-	.string "frontier move$"
+	.string "{ENG}frontier move{JPN}$"
