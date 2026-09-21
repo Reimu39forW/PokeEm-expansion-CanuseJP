@@ -644,6 +644,7 @@ gSpecials::
 	def_special Special_OpenFrontierPokemonCreator
 	def_special Special_SetupFrontierHubState
 	def_special Special_OpenFrontierItemGiver
+	def_special Special_OpenMintItemGiver
 	def_special Special_SetFrontierAiNormal
 	def_special Special_SetFrontierAiHard
 	def_special Special_SetFrontierAiStrongest

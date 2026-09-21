@@ -348,29 +348,27 @@ static u8 GetBattlePalaceMoveGroup(enum BattlerId battler, enum Move move)
 {
     switch (GetBattlerMoveTargetType(battler, move))
     {
-    case TARGET_SELECTED:
+    case TARGET_USER:
+        return PALACE_MOVE_GROUP_DEFENSE;
+    // Expansion represents these scopes explicitly. Emerald grouped their
+    // non-damaging equivalents with moves that affect the user or its side.
+    case TARGET_ALLY:
     case TARGET_USER_AND_ALLY:
-    case TARGET_SMART:
-    case TARGET_OPPONENT:
-    case TARGET_RANDOM:
-    case TARGET_BOTH:
-    case TARGET_FOES_AND_ALLY:
+    case TARGET_USER_OR_ALLY:
     case TARGET_ALL_BATTLERS:
     case TARGET_FIELD:
+        if (IsBattleMoveStatus(move))
+            return PALACE_MOVE_GROUP_DEFENSE;
+        else
+            return PALACE_MOVE_GROUP_ATTACK;
+    case TARGET_DEPENDS:
+    case TARGET_OPPONENTS_FIELD:
+        return PALACE_MOVE_GROUP_SUPPORT;
+    default:
         if (IsBattleMoveStatus(move))
             return PALACE_MOVE_GROUP_SUPPORT;
         else
             return PALACE_MOVE_GROUP_ATTACK;
-        break;
-    case TARGET_DEPENDS:
-    case TARGET_OPPONENTS_FIELD:
-    case TARGET_ALLY:
-    case TARGET_USER_OR_ALLY:
-        return PALACE_MOVE_GROUP_SUPPORT;
-    case TARGET_USER:
-        return PALACE_MOVE_GROUP_DEFENSE;
-    default:
-        return PALACE_MOVE_GROUP_ATTACK;
     }
 }
 
