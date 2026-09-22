@@ -3138,6 +3138,12 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}たきのぼり"),
         .description = COMPOUND_STRING("{JPN}20{ENG}%{JPN}で ひるみ\nさわる"),
+    #if B_UPDATED_MOVE_DATA >= GEN_4
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_FLINCH,
+            .chance = 20,
+        }),
+    #endif
         .effect = EFFECT_HIT,
         .power = 80,
         .type = TYPE_WATER,
@@ -3205,6 +3211,14 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}ロケットずつき"),
         .description = COMPOUND_STRING("{JPN}つぎターン こうげき\nじぶんの ぼうぎょ{ENG}+{JPN}1 ためる さわる"),
+    #if B_UPDATED_MOVE_DATA >= GEN_2
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_STAT_PLUS,
+            .defense = 1,
+            .self = TRUE,
+            .onChargeTurnOnly = TRUE,
+        }),
+    #endif
         .effect = EFFECT_TWO_TURNS_ATTACK,
         .power = B_UPDATED_MOVE_DATA >= GEN_6 ? 130 : 100,
         .type = TYPE_NORMAL,
@@ -3533,6 +3547,12 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}ゴッドバード"),
         .description = COMPOUND_STRING("{JPN}つぎターン こうげき\n30{ENG}%{JPN}で ひるみ ためる"),
+    #if B_UPDATED_MOVE_DATA >= GEN_3
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_FLINCH,
+            .chance = 30,
+        }),
+    #endif
         .effect = EFFECT_TWO_TURNS_ATTACK,
         .power = 140,
         .type = TYPE_FLYING,
@@ -3611,6 +3631,12 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}ピヨピヨパンチ"),
         .description = COMPOUND_STRING("{JPN}20{ENG}%{JPN}で こんらん\nパンチ さわる"),
+    #if B_UPDATED_MOVE_DATA >= GEN_2
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_CONFUSION,
+            .chance = 20,
+        }),
+    #endif
         .effect = EFFECT_HIT,
         .power = 70,
         .type = TYPE_NORMAL,
@@ -3872,6 +3898,12 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}いわなだれ"),
         .description = COMPOUND_STRING("{JPN}30{ENG}%{JPN}で ひるみ\nさわらない"),
+    #if B_UPDATED_MOVE_DATA >= GEN_2
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_FLINCH,
+            .chance = 30,
+        }),
+    #endif
         .effect = EFFECT_HIT,
         .power = 75,
         .type = TYPE_ROCK,
@@ -3970,6 +4002,13 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}トライアタック"),
         .description = COMPOUND_STRING("{JPN}20{ENG}%{JPN}で まひ/やけど/こおり\nさわらない"),
+    #if B_UPDATED_MOVE_DATA >= GEN_2
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_RANDOM_FROM_LIST,
+            .chance = 20,
+            .argument.randomMoveEffects = { MOVE_EFFECT_BURN, MOVE_EFFECT_PARALYSIS, MOVE_EFFECT_FREEZE_OR_FROSTBITE },
+        }),
+    #endif
         .effect = EFFECT_HIT,
         .power = 80,
         .type = TYPE_NORMAL,
@@ -5661,6 +5700,14 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}こうそくスピン"),
         .description = COMPOUND_STRING("{JPN}しばりを とく\n100{ENG}%{JPN}で じぶんの すばやさ{ENG}+{JPN}1 さわる"),
+    #if B_SPEED_BUFFING_RAPID_SPIN >= GEN_8
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_STAT_PLUS,
+            .speed = 1,
+            .self = TRUE,
+            .chance = 100,
+        }),
+    #endif
         .effect = EFFECT_RAPID_SPIN,
         .power = B_UPDATED_MOVE_DATA >= GEN_8 ? 50 : 20,
         .type = TYPE_NORMAL,
@@ -8531,6 +8578,12 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("{JPN}ボルテッカー"),
         .description = COMPOUND_STRING("{JPN}はんどうあり\n10{ENG}%{JPN}で まひ はんどう さわる"),
+    #if B_UPDATED_MOVE_DATA >= GEN_4
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_PARALYSIS,
+            .chance = 10,
+        }),
+    #endif
         .effect = EFFECT_RECOIL,
         .power = 120,
         .type = TYPE_ELECTRIC,

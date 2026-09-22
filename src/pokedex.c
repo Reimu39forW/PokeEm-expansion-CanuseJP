@@ -49,7 +49,7 @@
 #define MON_PAGE_X 48
 #define MON_PAGE_Y 56
 
-static EWRAM_DATA struct PokedexView *sPokedexView = NULL;
+EWRAM_DATA struct PokedexView *sPokedexView = NULL;
 static EWRAM_DATA u16 sLastSelectedPokemon = 0;
 static EWRAM_DATA u8 sPokeBallRotation = 0;
 EWRAM_DATA struct PokedexListItem *sPokedexListItem = NULL;
