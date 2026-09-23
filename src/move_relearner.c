@@ -83,6 +83,31 @@ static EWRAM_DATA struct {
 EWRAM_DATA enum MoveRelearnerStates gMoveRelearnerState = MOVE_RELEARNER_LEVEL_UP_MOVES;
 EWRAM_DATA enum RelearnMode gRelearnMode = RELEARN_MODE_NONE;
 
+// Keep LGPE partner moves relearner-only so they do not alter the starter's
+// initial moves or normal level-up progression.
+static const u16 sPikachuStarterRelearnerMoves[] =
+{
+    MOVE_ZIPPY_ZAP,
+    MOVE_SPLISHY_SPLASH,
+    MOVE_FLOATY_FALL,
+    MOVE_PIKA_PAPOW,
+    MOVE_UNAVAILABLE,
+};
+
+static const u16 sEeveeStarterRelearnerMoves[] =
+{
+    MOVE_BOUNCY_BUBBLE,
+    MOVE_BUZZY_BUZZ,
+    MOVE_SIZZLY_SLIDE,
+    MOVE_GLITZY_GLOW,
+    MOVE_BADDY_BAD,
+    MOVE_SAPPY_SEED,
+    MOVE_FREEZY_FROST,
+    MOVE_SPARKLY_SWIRL,
+    MOVE_VEEVEE_VOLLEY,
+    MOVE_UNAVAILABLE,
+};
+
 static const u16 sUI_Pal[] = INCGFX_U16("graphics/interface/ui_learn_move.png", ".gbapal");
 
 // The arrow sprites in this spritesheet aren't used. The scroll-arrow system provides its own
@@ -272,6 +297,7 @@ static u32 GetRelearnerFrontierFullMoves(struct BoxPokemon *mon, u16 *moves);
 static u32 GetRelearnerEggMoves(struct BoxPokemon *mon, u16 *moves);
 static u32 GetRelearnerTMMoves(struct BoxPokemon *mon, u16 *moves);
 static u32 GetRelearnerTutorMoves(struct BoxPokemon *mon, u16 *moves);
+static const u16 *GetStarterPartnerRelearnerMoves(enum Species species);
 
 static void Task_MoveRelearner_HandleInput(u8 taskId);
 static void Task_MoveRelearner_LearnMove(u8 taskId);
@@ -990,9 +1016,23 @@ static void CycleFrontierMoveFilter(void)
         sFrontierMoveFilter = FRONTIER_MOVE_FILTER_ALL;
 }
 
+static const u16 *GetStarterPartnerRelearnerMoves(enum Species species)
+{
+    switch (species)
+    {
+    case SPECIES_PIKACHU_STARTER:
+        return sPikachuStarterRelearnerMoves;
+    case SPECIES_EEVEE_STARTER:
+        return sEeveeStarterRelearnerMoves;
+    default:
+        return NULL;
+    }
+}
+
 static u32 GetRelearnerLevelUpMoves(struct BoxPokemon *mon, u16 *moves)
 {
     enum Species species = GetBoxMonData(mon, MON_DATA_SPECIES);
+    const u16 *partnerMoves = GetStarterPartnerRelearnerMoves(species);
     u32 level = (P_ENABLE_ALL_LEVEL_UP_MOVES ? MAX_LEVEL : GetLevelFromBoxMonExp(mon));
     u32 numMoves = 0;
     do
@@ -1019,6 +1059,29 @@ static u32 GetRelearnerLevelUpMoves(struct BoxPokemon *mon, u16 *moves)
 
         species = (P_PRE_EVO_MOVES ? GetSpeciesPreEvolution(species) : SPECIES_NONE);
     } while (species != SPECIES_NONE);
+
+    if (partnerMoves != NULL)
+    {
+        for (u32 i = 0; partnerMoves[i] != MOVE_UNAVAILABLE; i++)
+        {
+            bool32 alreadyInList = FALSE;
+
+            if (BoxMonKnowsMove(mon, partnerMoves[i]))
+                continue;
+
+            for (u32 j = 0; j < numMoves; j++)
+            {
+                if (partnerMoves[i] == moves[j])
+                {
+                    alreadyInList = TRUE;
+                    break;
+                }
+            }
+
+            if (!alreadyInList && numMoves < MAX_RELEARNER_MOVES)
+                moves[numMoves++] = partnerMoves[i];
+        }
+    }
 
     return numMoves;
 }
@@ -1147,7 +1210,17 @@ bool32 HasMoveToRelearn(struct BoxPokemon *boxMon, enum MoveRelearnerStates stat
 static bool32 HasRelearnerLevelUpMoves(struct BoxPokemon *boxMon)
 {
     enum Species species = GetBoxMonData(boxMon, MON_DATA_SPECIES);
+    const u16 *partnerMoves = GetStarterPartnerRelearnerMoves(species);
     u32 level = (P_ENABLE_ALL_LEVEL_UP_MOVES == TRUE) ? MAX_LEVEL : GetLevelFromBoxMonExp(boxMon);
+
+    if (partnerMoves != NULL)
+    {
+        for (u32 i = 0; partnerMoves[i] != MOVE_UNAVAILABLE; i++)
+        {
+            if (!BoxMonKnowsMove(boxMon, partnerMoves[i]))
+                return TRUE;
+        }
+    }
 
     do
     {
