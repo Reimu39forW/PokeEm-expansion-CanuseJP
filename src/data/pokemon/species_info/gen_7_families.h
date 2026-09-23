@@ -174,7 +174,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
             "Decidueye is cool and cautious.\n"
             "It fires arrow quills from its wings with\n"
             "such precision, they can pierce a pebble\n"
-            "at distances of over a hundred yards."),
+            "at distances of over 90 meters."),
         .pokemonScale = 259,
         .pokemonOffset = 1,
         .trainerScale = 296,
@@ -4281,7 +4281,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
         .friendship = STANDARD_FRIENDSHIP,
         .growthRate = GROWTH_MEDIUM_FAST,
         .eggGroups = MON_EGG_GROUPS(EGG_GROUP_BUG, EGG_GROUP_WATER_3),
-        .abilities = { ABILITY_EMERGENCY_EXIT, ABILITY_NONE, ABILITY_NONE },
+        .abilities = { ABILITY_TOUGH_CLAWS, ABILITY_TOUGH_CLAWS, ABILITY_TOUGH_CLAWS },
         .bodyColor = BODY_COLOR_GRAY,
         .speciesName = _("{JPN}グソクムシャ"),
     #if P_MODIFIED_MEGA_CRIES

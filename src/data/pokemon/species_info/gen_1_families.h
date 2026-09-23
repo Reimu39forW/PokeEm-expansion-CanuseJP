@@ -769,7 +769,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .weight = 0,
         .description = COMPOUND_STRING(
             "The flame inside its body burns\n"
-            "hotter than 3,600 degrees Fahrenheit.\n"
+            "hotter than 2,000 degrees Celsius.\n"
             "When Charizard roars, that\n"
             "temperature climbs even higher."),
         .pokemonScale = 256,
@@ -980,7 +980,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "The waterspouts that protrude from its\n"
             "shell are highly accurate. Their bullets of\n"
             "water can precisely nail tin cans from\n"
-            "a distance of over 160 feet."),
+            "a distance of over 50 meters."),
         .pokemonScale = 256,
         .pokemonOffset = -1,
         .trainerScale = 293,
@@ -1343,7 +1343,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "It has a superior ability to search for\n"
             "delicious honey from flowers. It can seek,\n"
             "extract, and carry honey from flowers\n"
-            "blooming over six miles away."),
+            "blooming over 10 kilometers away."),
         .pokemonScale = 312,
         .pokemonOffset = 2,
         .trainerScale = 256,
@@ -1437,9 +1437,9 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .weight = 0,
         .description = COMPOUND_STRING(
             "Once it has opponents trapped in a\n"
-            "tornado that could blow away a 10-\n"
-            "ton truck, it finishes them off with\n"
-            "its poisonous scales."),
+            "tornado that could blow away a 10-tonne\n"
+            "truck, it finishes them off with its\n"
+            "poisonous scales."),
         .pokemonScale = 312,
         .pokemonOffset = 2,
         .trainerScale = 256,
@@ -1862,6 +1862,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             gOverworldPalette_Pidgey,
             gShinyOverworldPalette_Pidgey
         )
+        .isSkyBattleBanned = B_SKY_BATTLE_STRICT_ELIGIBILITY,
         .levelUpLearnset = sPidgeyLevelUpLearnset,
         .teachableLearnset = sPidgeyTeachableLearnset,
         .eggMoveLearnset = sPidgeyEggMoveLearnset,
@@ -2520,7 +2521,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .height = 3,
         .weight = 20,
         .description = COMPOUND_STRING(
-            "Its loud cry can be heard over half a mile\n"
+            "Its loud cry can be heard over 800 meters\n"
             "away. If its high, keening cry is heard\n"
             "echoing all around, it is a sign that they\n"
             "are warning each other of danger."),
@@ -5251,7 +5252,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .description = COMPOUND_STRING(
             "It flies by using the power of\n"
             "moonlight to control gravity within\n"
-            "a radius of over 32 feet around it."),
+            "a radius of over 10 meters around it."),
         .frontPic = gMonFrontPic_ClefableMega,
         .frontPicSize = MON_COORDS_SIZE(64, 64),
         .frontPicYOffset = 0,
@@ -8067,7 +8068,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .weight = 1550,
         .description = COMPOUND_STRING(
             "This fleet-footed Pokemon is said to run\n"
-            "over 6,200 miles in a single day and night.\n"
+            "over 10,000 km in a single day and night.\n"
             "The fire that blazes wildly within its body\n"
             "is its source of power."),
         .pokemonScale = 256,
@@ -10211,7 +10212,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "It usually canters casually in the fields\n"
             "and plains. But once a Rapidash turns\n"
             "serious, its fiery manes flare and blaze\n"
-            "as it gallops its way up to 150 mph."),
+            "as it gallops its way up to 240 km/h."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 289,
@@ -10918,7 +10919,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "The units at its sides are extremely\n"
             "powerful magnets. They generate enough\n"
             "magnetism to draw in iron objects from\n"
-            "over 300 feet away."),
+            "over 90 meters away."),
         .pokemonScale = 288,
         .pokemonOffset = -9,
         .trainerScale = 256,
@@ -10988,9 +10989,9 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .weight = 600,
         .description = COMPOUND_STRING(
             "It is actually three Magnemite linked\n"
-            "by magnetism. It generates powerful radio\n"
-            "waves that raise temperatures by 3.6\n"
-            "degrees F within a 3,300-foot radius."),
+            "by magnetism. Its powerful radio waves\n"
+            "raise temperatures by 2 degrees Celsius\n"
+            "within a radius of 1,000 meters."),
         .pokemonScale = 292,
         .pokemonOffset = 1,
         .trainerScale = 256,
@@ -11373,7 +11374,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "Even while eating or sleeping, one of the\n"
             "heads remains always vigilant for any sign\n"
             "of danger. When threatened, it flees at\n"
-            "over 60 miles per hour."),
+            "over 100 km/h."),
         .pokemonScale = 256,
         .pokemonOffset = 3,
         .trainerScale = 257,
@@ -12591,7 +12592,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "Steelix live even further underground\n"
             "than Onix. This Pokemon is known to dig\n"
             "toward the earth's core, reaching a depth\n"
-            "of over six-tenths of a mile underground."),
+            "of over one kilometer underground."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 516,
@@ -17184,7 +17185,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "According to what is known, a single pair\n"
             "of male and female Magmortar lives in\n"
             "one volcano. From its arm, it launches\n"
-            "fireballs hotter than 3,600 degreesF."),
+            "fireballs hotter than 2,000 degrees Celsius."),
         .pokemonScale = 259,
         .pokemonOffset = 1,
         .trainerScale = 296,
@@ -17555,7 +17556,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .weight = 850,
         .description = COMPOUND_STRING(
             "When heated by fire energy, its horns can\n"
-            "get hotter than 1,800 degrees Fahrenheit.\n"
+            "get hotter than 1,000 degrees Celsius.\n"
             "Those gored by them will suffer\n"
             "both wounds and burns."),
         .pokemonScale = 256,
@@ -18522,7 +18523,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "Flareon's fluffy fur releases heat into\n"
             "the air so that its body does not get\n"
             "excessively hot. Its body temperature can\n"
-            "rise to a maximum of 1,650 degrees F."),
+            "rise to a maximum of 900 degrees Celsius."),
         .pokemonScale = 306,
         .pokemonOffset = 12,
         .trainerScale = 256,
@@ -20065,7 +20066,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
             "When its feathers rub together, they\n"
             "produce a crackling sound like the\n"
             "zapping of electricity. Apparently, it runs\n"
-            "through the mountains at over 180 mph."),
+            "through the mountains at over 290 km/h."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 318,
@@ -20672,7 +20673,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .weight = 1270,
         .description = COMPOUND_STRING(
             "Psychic power has augmented its muscles.\n"
-            "It has a grip strength of one ton and can\n"
+            "It has a grip strength of 1,000 kg and can\n"
             "sprint a hundred meters in two seconds\n"
             "flat!"),
         .pokemonScale = 256,

@@ -968,7 +968,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
             "Mega Staraptor is a top-class flier.\n"
             "It can easily soar through the sky while\n"
             "gripping a Steelix that weighs more than\n"
-            "880 lbs."),
+            "400 kg."),
         .frontPic = gMonFrontPic_StaraptorMega,
         .frontPicSize = MON_COORDS_SIZE(64, 64),
         .frontPicYOffset = 0,
@@ -4548,7 +4548,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
         .friendship = STANDARD_FRIENDSHIP,
         .growthRate = GROWTH_SLOW,
         .eggGroups = MON_EGG_GROUPS(EGG_GROUP_MONSTER, EGG_GROUP_DRAGON),
-        .abilities = { ABILITY_SAND_VEIL, ABILITY_NONE, ABILITY_ROUGH_SKIN },
+        .abilities = { ABILITY_LEVITATE, ABILITY_LEVITATE, ABILITY_LEVITATE },
         .bodyColor = BODY_COLOR_BLUE,
         .speciesName = _("{JPN}ガブリアス"),
     #if P_MODIFIED_MEGA_CRIES
@@ -4825,7 +4825,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
         .friendship = STANDARD_FRIENDSHIP,
         .growthRate = GROWTH_MEDIUM_SLOW,
         .eggGroups = MON_EGG_GROUPS(EGG_GROUP_FIELD, EGG_GROUP_HUMAN_LIKE),
-        .abilities = { ABILITY_STEADFAST, ABILITY_INNER_FOCUS, ABILITY_JUSTIFIED },
+        .abilities = { ABILITY_AURA_GUARD, ABILITY_AURA_GUARD, ABILITY_AURA_GUARD },
         .bodyColor = BODY_COLOR_GRAY,
         .speciesName = _("{JPN}ルカリオ"),
     #if P_MODIFIED_MEGA_CRIES
@@ -6995,7 +6995,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
         .description = COMPOUND_STRING(
             "It's said that if it goes all out, it\n"
             "can heat its body up to temperatures\n"
-            "over 1.8 million degrees Fahrenheit.\n"
+            "over 1 million degrees Celsius.\n"
             "This heat keeps enemies at bay."),
         .frontPic = gMonFrontPic_HeatranMega,
         .frontPicSize = MON_COORDS_SIZE(64, 64),

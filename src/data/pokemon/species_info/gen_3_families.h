@@ -4991,7 +4991,7 @@ const struct SpeciesInfo gSpeciesInfoGen3[] =
             "When two Lairon meet in the wild, they\n"
             "fight for territory by bashing into each\n"
             "other with their steel bodies. The sound\n"
-            "of their collision carries for miles."),
+            "of their collision carries for kilometers."),
         .pokemonScale = 275,
         .pokemonOffset = 12,
         .trainerScale = 256,
@@ -6491,7 +6491,7 @@ const struct SpeciesInfo gSpeciesInfoGen3[] =
             "The vicious and sly gangster of the sea.\n"
             "Its skin is specially textured to minimize\n"
             "drag in water. Its speed tops out at over\n"
-            "75 miles per hour."),
+            "120 km/h."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 317,
@@ -6717,7 +6717,7 @@ const struct SpeciesInfo gSpeciesInfoGen3[] =
             "It breathes through nostrils that it\n"
             "raises above the sea. By inhaling to its\n"
             "maximum capacity, a Wailord can dive close\n"
-            "to 10,000 feet beneath the waves."),
+            "to 3,000 meters beneath the waves."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 1352,
@@ -6790,7 +6790,7 @@ const struct SpeciesInfo gSpeciesInfoGen3[] =
         .description = COMPOUND_STRING(
             "A Numel stores boiling magma in the hump\n"
             "on its back. It is a hardy Pokemon that can\n"
-            "transport a 220-pound load. It has served\n"
+            "transport a 100 kg load. It has served\n"
             "humans at work since long ago."),
         .pokemonScale = 342,
         .pokemonOffset = 17,
@@ -10561,7 +10561,7 @@ const struct SpeciesInfo gSpeciesInfoGen3[] =
         .friendship = 35,
         .growthRate = GROWTH_MEDIUM_SLOW,
         .eggGroups = MON_EGG_GROUPS(EGG_GROUP_FIELD),
-        .abilities = { ABILITY_MAGIC_BOUNCE, ABILITY_MAGIC_BOUNCE, ABILITY_MAGIC_BOUNCE },
+        .abilities = { ABILITY_SHARPNESS, ABILITY_SHARPNESS, ABILITY_SHARPNESS },
         .bodyColor = BODY_COLOR_BLACK,
         .noFlip = TRUE,
         .speciesName = _("{JPN}アブソル"),
@@ -11987,7 +11987,7 @@ const struct SpeciesInfo gSpeciesInfoGen3[] =
             "The claws tipping its arms pack the\n"
             "destructive power to tear through thick\n"
             "iron sheets as if they were silk. It flies\n"
-            "at over 60 miles per hour."),
+            "at over 100 km/h."),
         .pokemonScale = 256,
         .pokemonOffset = 6,
         .trainerScale = 256,

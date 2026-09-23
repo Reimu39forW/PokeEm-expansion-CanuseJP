@@ -356,7 +356,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
             "Skeledirge's gentle singing\n"
             "soothes the souls of all that hear it. It\n"
             "burns its enemies to a crisp with\n"
-            "flames of over 5,400 degrees Fahrenheit."),
+            "flames of over 3,000 degrees Celsius."),
         .pokemonScale = 356,
         .pokemonOffset = 17,
         .trainerScale = 256,
@@ -939,7 +939,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .description = COMPOUND_STRING(
             "It has its third set of legs folded\n"
             "up. When it's in a tough spot, this\n"
-            "Pokemon jumps over 30 feet using the\n"
+            "Pokemon jumps over 9 meters using the\n"
             "strength of its legs."),
         .pokemonScale = 356,
         .pokemonOffset = 17,
@@ -2442,8 +2442,14 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .frontPic = gMonFrontPic_Tadbulb,
         .frontPicSize = MON_COORDS_SIZE(64, 64),
         .frontPicYOffset = 4,
-        .frontAnimFrames = sAnims_SingleFramePlaceHolder,
-        //.frontAnimId = ANIM_V_SQUISH_AND_BOUNCE,
+        .frontAnimFrames = ANIM_FRAMES(
+            ANIMCMD_FRAME(0, 6),
+            ANIMCMD_FRAME(1, 15),
+            ANIMCMD_FRAME(0, 26),
+            ANIMCMD_FRAME(1, 20),
+            ANIMCMD_FRAME(0, 1),
+        ),
+        .frontAnimId = ANIM_V_SLIDE_SLOW,
         .enemyMonElevation = 12,
         .backPic = gMonBackPic_Tadbulb,
         .backPicSize = MON_COORDS_SIZE(64, 64),
@@ -2508,8 +2514,12 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .frontPic = gMonFrontPic_Bellibolt,
         .frontPicSize = MON_COORDS_SIZE(64, 64),
         .frontPicYOffset = 7,
-        .frontAnimFrames = sAnims_SingleFramePlaceHolder,
-        //.frontAnimId = ANIM_V_SQUISH_AND_BOUNCE,
+        .frontAnimFrames = ANIM_FRAMES(
+            ANIMCMD_FRAME(0, 2),
+            ANIMCMD_FRAME(1, 30),
+            ANIMCMD_FRAME(0, 1),
+        ),
+        .frontAnimId = ANIM_V_JUMPS_H_JUMPS,
         .backPic = gMonBackPic_Bellibolt,
         .backPicSize = MON_COORDS_SIZE(64, 64),
         .backPicYOffset = 10,
@@ -3087,7 +3097,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
             "Though it looks like Tentacool,\n"
             "Toedscool is a completely different\n"
             "species. Its legs may be thin, but it\n"
-            "can run at a speed of 30 mph."),
+            "can run at a speed of 50 km/h."),
         .pokemonScale = 356,
         .pokemonOffset = 17,
         .trainerScale = 256,
@@ -3602,8 +3612,8 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .height = 2,
         .weight = 15,
         .description = COMPOUND_STRING(
-            "Flittle's toes levitate about half\n"
-            "an inch above the ground because of\n"
+            "Flittle's toes levitate about one\n"
+            "centimeter above the ground because of\n"
             "the psychic power emitted from the\n"
             "frills on the Pokemon's belly."),
         .pokemonScale = 356,
@@ -3861,7 +3871,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .height = 7,
         .weight = 1128,
         .description = COMPOUND_STRING(
-            "The hammer tops 220 pounds, yet it\n"
+            "The hammer tops 100 kilograms, yet it\n"
             "gets swung around easily by\n"
             "Tinkaton as it steals whatever it pleases\n"
             "and carries its plunder back home."),
@@ -3927,7 +3937,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .weight = 18,
         .description = COMPOUND_STRING(
             "This Pokemon can pick up the scent\n"
-            "of a Veluza just over 65 feet away\n"
+            "of a Veluza just over 20 meters away\n"
             "and will hide itself in the sand."),
         .pokemonScale = 356,
         .pokemonOffset = 17,
@@ -4446,7 +4456,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .height = 16,
         .weight = 630,
         .description = COMPOUND_STRING(
-            "It can sprint at over 70 mph while\n"
+            "It can sprint at over 110 km/h while\n"
             "carrying a human. The rider's body\n"
             "heat warms Cyclizar's back and lifts\n"
             "the Pokemon's spirit."),
@@ -6600,7 +6610,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .friendship = STANDARD_FRIENDSHIP,
         .growthRate = GROWTH_SLOW,
         .eggGroups = MON_EGG_GROUPS(EGG_GROUP_DRAGON, EGG_GROUP_MINERAL),
-        .abilities = { ABILITY_THERMAL_EXCHANGE, ABILITY_NONE, ABILITY_ICE_BODY },
+        .abilities = { ABILITY_THERMAL_EXCHANGE, ABILITY_THERMAL_EXCHANGE, ABILITY_THERMAL_EXCHANGE },
         .bodyColor = BODY_COLOR_BLUE,
         .speciesName = _("{JPN}{JPN}セグレイブ"),
     #if P_MODIFIED_MEGA_CRIES
@@ -6922,7 +6932,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .height = 19,
         .weight = 1522,
         .description = COMPOUND_STRING(
-            "This Pokemon can control 100 tons\n"
+            "This Pokemon can control 100 metric tons\n"
             "of fallen snow. It plays around\n"
             "innocently by leaping in and out of\n"
             "avalanches it has caused."),
@@ -6992,7 +7002,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
             "It slowly brings its exceedingly\n"
             "heavy head down upon the ground,\n"
             "splitting the earth open with huge\n"
-            "fissures that run over 160 feet deep."),
+            "fissures that run over 50 meters deep."),
         .pokemonScale = 356,
         .pokemonOffset = 17,
         .trainerScale = 256,
@@ -7057,7 +7067,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
         .weight = 49,
         .description = COMPOUND_STRING(
             "It controls flames burning at over\n"
-            "5,400 degrees Fahrenheit. It\n"
+            "3,000 degrees Celsius. It\n"
             "casually swims through the sea of lava it\n"
             "creates by melting rock and sand."),
         .pokemonScale = 356,
