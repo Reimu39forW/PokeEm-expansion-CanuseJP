@@ -2792,10 +2792,10 @@ const struct SpeciesInfo gSpeciesInfoGen2[] =
         .height = 6,
         .weight = 10,
         .description = COMPOUND_STRING(
-            "It blossoms when the temperature rises\n"
-            "above 64 degrees F. Because its flower's\n"
-            "blooming changes with the temperature,\n"
-            "it is sometimes used as a thermometer."),
+            "It blossoms above 18 degrees Celsius.\n"
+            "Because its flower's blooming changes\n"
+            "with the temperature, it is sometimes\n"
+            "used as a thermometer."),
         .pokemonScale = 387,
         .pokemonOffset = 0,
         .trainerScale = 256,
@@ -4709,7 +4709,7 @@ const struct SpeciesInfo gSpeciesInfoGen2[] =
             "This Pokemon uses its hard tail to\n"
             "make its nest by boring holes into\n"
             "bedrock deep underground. The nest\n"
-            "can reach lengths of over six miles."),
+            "can reach lengths of over 10 kilometers."),
         .pokemonScale = 356,
         .pokemonOffset = 17,
         .trainerScale = 256,
@@ -7955,7 +7955,7 @@ const struct SpeciesInfo gSpeciesInfoGen2[] =
         .height = 12,
         .weight = 755,
         .description = COMPOUND_STRING(
-            "It gives over five gallons of milk daily.\n"
+            "It gives over 20 liters of milk daily.\n"
             "Its sweet milk is enjoyed by children and\n"
             "grown-ups alike. People who can't drink\n"
             "milk turn it into yogurt and eat it instead."),

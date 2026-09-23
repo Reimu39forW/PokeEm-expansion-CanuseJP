@@ -968,7 +968,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
             "Mega Staraptor is a top-class flier.\n"
             "It can easily soar through the sky while\n"
             "gripping a Steelix that weighs more than\n"
-            "880 lbs."),
+            "400 kg."),
         .frontPic = gMonFrontPic_StaraptorMega,
         .frontPicSize = MON_COORDS_SIZE(64, 64),
         .frontPicYOffset = 0,
@@ -6995,7 +6995,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
         .description = COMPOUND_STRING(
             "It's said that if it goes all out, it\n"
             "can heat its body up to temperatures\n"
-            "over 1.8 million degrees Fahrenheit.\n"
+            "over 1 million degrees Celsius.\n"
             "This heat keeps enemies at bay."),
         .frontPic = gMonFrontPic_HeatranMega,
         .frontPicSize = MON_COORDS_SIZE(64, 64),

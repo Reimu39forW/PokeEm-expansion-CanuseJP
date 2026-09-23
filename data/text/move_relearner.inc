@@ -3,19 +3,19 @@ MoveRelearner_Text_WouldLearnNewMoves:
 	.string "どの しゅるいの わざに するんだい?$"
 
 MoveRelearner_Text_LevelUpMoves:
-	.string "Level Up Moves$"
+	.string "{JPN}レベルアップ$"
 
 MoveRelearner_Text_EggMoves:
-	.string "Egg Moves$"
+	.string "{JPN}タマゴわざ$"
 
 MoveRelearner_Text_TMMoves:
-	.string "TM Moves$"
+	.string "{JPN}わざマシン$"
 
 MoveRelearner_Text_TutormoveMoves:
-	.string "Tutor Moves$"
+	.string "{JPN}おしえわざ$"
 
 MoveRelearner_Text_SeeYa:
-	.string "やめる$"
+	.string "{JPN}やめる$"
 
 MoveRelearner_Text_AnythingElse:
 	.string "{JPN}どの しゅるいの わざに するんだい？$"
@@ -33,19 +33,19 @@ MoveRelearner_Text_CantTeachMoveToPkmn:
 	.string "{JPN}ごめんね……\pぼくが その ポケモンに\nおしえられる わざは ないみたいだよ$"
 
 MoveRelearner_Text_LevelUpMoveLWR::
-	.string "{ENG}Level up move{JPN}$"
+	.string "{JPN}レベルアップわざ$"
 
 MoveRelearner_Text_EggMoveLWR::
-	.string "{ENG}Egg move{JPN}$"
+	.string "{JPN}タマゴわざ$"
 
 MoveRelearner_Text_TMMoveLWR::
-	.string "{ENG}TM move{JPN}$"
+	.string "{JPN}わざマシン$"
 
 MoveRelearner_Text_TutorMoveLWR::
-	.string "{ENG}Tutor move{JPN}$"
+	.string "{JPN}おしえわざ$"
 
 MoveRelearner_Text_MoveLWR::
-	.string "{ENG}move{JPN}$"
+	.string "{JPN}わざ$"
 
 MoveRelearner_Text_WhichXmoveShouldTeach:
 	.string "{JPN}どの {STR_VAR_3} にするんだい?$"

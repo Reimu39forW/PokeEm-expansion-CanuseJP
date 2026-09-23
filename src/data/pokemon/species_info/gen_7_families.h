@@ -174,7 +174,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
             "Decidueye is cool and cautious.\n"
             "It fires arrow quills from its wings with\n"
             "such precision, they can pierce a pebble\n"
-            "at distances of over a hundred yards."),
+            "at distances of over 90 meters."),
         .pokemonScale = 259,
         .pokemonOffset = 1,
         .trainerScale = 296,
