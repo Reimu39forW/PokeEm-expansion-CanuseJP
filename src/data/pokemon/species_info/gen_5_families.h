@@ -1528,8 +1528,8 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
         .height = 6,
         .weight = 110,
         .description = COMPOUND_STRING(
-            "The fire within the tuft on its head can\n"
-            "reach up to 600 degreesF. Very intelligent,\n"
+            "The fire in its head tuft can reach\n"
+            "320 degrees Celsius. Very intelligent,\n"
             "it roasts berries before eating them.\n"
             "It likes to help people."),
         .pokemonScale = 422,
@@ -2721,7 +2721,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
         .weight = 85,
         .description = COMPOUND_STRING(
             "It can dig through the ground at a\n"
-            "speed of 30 mph by spinning its body.\n"
+            "speed of 50 km/h by spinning its body.\n"
             "It could give a car running aboveground\n"
             "a good race."),
         .pokemonScale = 530,
@@ -2792,7 +2792,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
         .height = 7,
         .weight = 404,
         .description = COMPOUND_STRING(
-            "More than 300 feet below the surface,\n"
+            "More than 90 meters below the surface,\n"
             "they build mazelike nests. Their activity\n"
             "can be destructive to subway tunnels,\n"
             "but it can also help with construction."),
@@ -3147,7 +3147,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
             "They strengthen their bodies by carrying\n"
             "steel beams. This Pokemon is so muscular\n"
             "and strongly built that even a group of\n"
-            "wrestlers could not make it budge an inch."),
+            "wrestlers could not make it budge a centimeter."),
         .pokemonScale = 282,
         .pokemonOffset = 3,
         .trainerScale = 256,
@@ -7678,7 +7678,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
         .description = COMPOUND_STRING(
             "Despite their elegant appearance, they\n"
             "can flap their wings strongly and fly for\n"
-            "thousands of miles. The one in the middle\n"
+            "thousands of kilometers. The middle one\n"
             "is the leader of the flock."),
         .pokemonScale = 272,
         .pokemonOffset = 3,
@@ -7749,10 +7749,10 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
         .height = 4,
         .weight = 57,
         .description = COMPOUND_STRING(
-            "The temperature of their breath is -58 degreesF.\n"
+            "Their breath is -50 degrees Celsius.\n"
             "They create snow crystals and make snow\n"
-            "fall in the areas around them. Vanillite is\n"
-            "treasured by households in warm regions."),
+            "fall around them. Vanillite is treasured\n"
+            "by households in warm regions."),
         .pokemonScale = 491,
         .pokemonOffset = 12,
         .trainerScale = 256,
@@ -8849,8 +8849,8 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
         .weight = 330,
         .description = COMPOUND_STRING(
             "If its veil-like arms stun and wrap an\n"
-            "opponent, that foe will be dragged\n"
-            "five miles below the surface to its lair,\n"
+            "opponent, that foe is dragged eight\n"
+            "kilometers below the surface to its lair,\n"
             "never to return."),
         .pokemonScale = 282,
         .pokemonOffset = 4,
@@ -12810,7 +12810,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
             "Tornadus expels massive energy from\n"
             "its tail, causing severe storms.\n"
             "Its power can blow entire houses away.\n"
-            "It zooms through the sky at 200 mph."),
+            "It zooms through the sky at 320 km/h."),
         .pokemonScale = 268,
         .pokemonOffset = 2,
         .trainerScale = 271,
