@@ -651,7 +651,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
         .description = COMPOUND_STRING(
             "It can throw bubble-covered pebbles with\n"
             "precise control, hitting empty cans up to\n"
-            "a hundred feet away. Frogadier's swiftness\n"
+            "30 meters away. Frogadier's swiftness\n"
             "is unparalleled."),
         .pokemonScale = 422,
         .pokemonOffset = 12,
@@ -1912,7 +1912,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
         .weight = 933,
         .description = COMPOUND_STRING(
             "This Pokemon spews flames hotter\n"
-            "than 18,000 degrees Fahrenheit.\n"
+            "than 10,000 degrees Celsius.\n"
             "It swings around its grand, blazing\n"
             "mane as it protects its allies."),
         .frontPic = gMonFrontPic_PyroarMega,
@@ -2745,7 +2745,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
         .weight = 35,
         .description = COMPOUND_STRING(
             "It has enough psychic energy to blast\n"
-            "everything within 300 feet of itself.\n"
+            "everything within 90 meters of itself.\n"
             "The organ that emits its intense psychic\n"
             "power is sheltered by its ears."),
         .pokemonScale = 530,
@@ -4326,7 +4326,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
         .description = COMPOUND_STRING(
             "By expelling water from the nozzle in the\n"
             "back of its enormous claw, it can move\n"
-            "at a speed of 60 knots. They launch\n"
+            "at a speed of 110 km/h. They launch\n"
             "cannonballs made of water."),
         .pokemonScale = 272,
         .pokemonOffset = 3,

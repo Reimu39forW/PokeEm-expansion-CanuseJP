@@ -2366,7 +2366,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
             "It's usually peaceful, but the vandalism\n"
             "of mines enrages it. Offenders will be\n"
             "incinerated with flames that reach\n"
-            "2,700 degrees Fahrenheit."),
+            "1,500 degrees Celsius."),
         .pokemonScale = 275,
         .pokemonOffset = 7,
         .trainerScale = 256,
@@ -2435,7 +2435,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
             "Its body is a colossal stove. With\n"
             "Gigantamax energy stoking the fire,\n"
             "this Pokemon's flame burns hotter\n"
-            "than 3,600 degrees Fahrenheit."),
+            "than 2,000 degrees Celsius."),
         .pokemonScale = 275,
         .pokemonOffset = 7,
         .trainerScale = 256,
@@ -2955,7 +2955,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .description = COMPOUND_STRING(
             "As it digs, it swallows sand and stores\n"
             "it in its neck pouch. The pouch can hold\n"
-            "more than 17 pounds of sand."),
+            "more than 8 kilograms of sand."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 348,
@@ -3020,8 +3020,8 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .height = 38,
         .weight = 655,
         .description = COMPOUND_STRING(
-            "When it contracts its body, over 220\n"
-            "pounds of sand sprays from its nose. If\n"
+            "When it contracts its body, over 100\n"
+            "kilograms of sand sprays from its nose. If\n"
             "it ever runs out of sand, it becomes\n"
             "disheartened."),
         .pokemonScale = 256,
@@ -3090,9 +3090,9 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .weight = 0,
         .description = COMPOUND_STRING(
             "Its sand pouch has grown to tremendous\n"
-            "proportions. More than 1,000,000 tons of\n"
-            "sand now swirl around its body with enough\n"
-            "speed and power to pulverize a skyscraper."),
+            "proportions. More than a million metric\n"
+            "tons of sand now swirl around its body\n"
+            "with enough power to pulverize a skyscraper."),
         .pokemonScale = 256,
         .pokemonOffset = 0,
         .trainerScale = 610,
@@ -3835,7 +3835,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .weight = 1200,
         .description = COMPOUND_STRING(
             "When it heats up, its body temperature\n"
-            "reaches about 1,500 degrees Fahrenheit.\n"
+            "reaches about 800 degrees Celsius.\n"
             "It lashes its body like a whip and\n"
             "launches itself at enemies."),
         .pokemonScale = 275,
@@ -4548,7 +4548,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .weight = 0,
         .description = COMPOUND_STRING(
             "This Pokemon can read the\n"
-            "emotions of creatures over 30 miles away.\n"
+            "emotions of creatures over 50 km away.\n"
             "The minute it senses hostility, it\n"
             "goes on the attack."),
         .pokemonScale = 256,
@@ -5560,7 +5560,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
             "Icy scales fall from its wings like snow\n"
             "as it flies over fields and mountains.\n"
             "The temperature of its wings is less than\n"
-            "-290 degrees Fahrenheit."),
+            "-180 degrees Celsius."),
         .pokemonScale = 272,
         .pokemonOffset = 3,
         .trainerScale = 256,
@@ -6073,8 +6073,8 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .description = COMPOUND_STRING(
             "It digs up the ground with its trunk.\n"
             "It's also very strong, being able to\n"
-            "carry loads of over five tons without any\n"
-            "problem at all."),
+            "carry over five metric tons without\n"
+            "any problem at all."),
         .pokemonScale = 282,
         .pokemonOffset = 4,
         .trainerScale = 256,
@@ -6787,7 +6787,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .height = 14,
         .weight = 110,
         .description = COMPOUND_STRING(
-            "It's capable of flying faster than 120 mph.\n"
+            "It can fly faster than 190 km/h.\n"
             "It battles alongside Dreepy and dotes\n"
             "on them until they successfully evolve."),
         .pokemonScale = 265,
