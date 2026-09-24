@@ -95,6 +95,7 @@ static EWRAM_DATA struct FrontierCreatorData *sFrontierCreatorData = NULL;
 #define tStatId   data[3]
 #define tPreviewSpriteId data[4]
 #define tPreviewSpecies  data[5]
+#define tSpeciesSortMode data[6]
 #define tItemGiverList          data[3]
 #define tItemGiverSelectedIndex data[4]
 
@@ -102,6 +103,12 @@ enum FrontierItemGiverList
 {
     FRONTIER_ITEM_GIVER_LIST_HUB,
     FRONTIER_ITEM_GIVER_LIST_MINTS,
+};
+
+enum FrontierCreatorSpeciesSortMode
+{
+    FRONTIER_CREATOR_SORT_SPECIES_ID,
+    FRONTIER_CREATOR_SORT_PRIMARY_TYPE,
 };
 
 static void Task_FrontierCreator_SelectSpecies(u8 taskId);
@@ -134,6 +141,8 @@ static u8 FrontierHub_GetAbilityNum(enum Species species, enum Ability ability);
 
 static enum Species FrontierCreator_GetFirstAllowedSpecies(void);
 static enum Species FrontierCreator_GetNextAllowedSpecies(enum Species species, s16 delta);
+static enum Species FrontierCreator_GetNextAllowedSpeciesByType(enum Species species, s16 delta);
+static enum Species FrontierCreator_GetNextAllowedPrimaryType(enum Species species, s16 delta);
 static void FrontierCreator_HandleSpeciesInput(u8 taskId);
 static void FrontierCreator_UpdateSpeciesPreview(u8 taskId, enum Species species, bool8 playCry);
 static void FrontierCreator_DestroySpeciesPreview(u8 taskId);
@@ -1793,6 +1802,8 @@ static const enum Species sFrontierCreatorAllowedBaseSpecies[] =
     SPECIES_SPEWPA_JUNGLE,
     SPECIES_SPEWPA_FANCY,
     SPECIES_SPEWPA_POKEBALL,
+    SPECIES_PIKACHU_STARTER,
+    SPECIES_EEVEE_STARTER,
     SPECIES_NONE,
 };
 
@@ -1808,6 +1819,7 @@ static const u8 *FrontierCreator_GetTypeName(u32 type)
 }
 
 static const u8 sFrontierCreatorText_Controls[] = _("{CLEAR_TO 90}\n{A_BUTTON}けってい {B_BUTTON}やめる");
+static const u8 sFrontierCreatorText_SpeciesControls[] = _("{CLEAR_TO 90}\n{SELECT_BUTTON}ならびかえ {A_BUTTON}けってい {B_BUTTON}やめる");
 
 static const u16 sFrontierCreatorGmaxCapableSpecies[] =
 {
@@ -2147,23 +2159,25 @@ static bool32 FrontierCreator_IsAllowedBaseSpecies(enum Species species)
     return FALSE;
 }
 
-static bool32 FrontierCreator_IsBannedSpecies(enum Species species)
+static bool32 FrontierCreator_IsSelectableAllowedSpecies(enum Species species)
 {
     if (species == SPECIES_NONE || species >= NUM_SPECIES)
-        return TRUE;
+        return FALSE;
 
 #ifdef SPECIES_CUSTOM_START
     if (species >= SPECIES_CUSTOM_START)
-        return TRUE;
+        return FALSE;
 #endif
 
-    if (species == SPECIES_PIKACHU_STARTER || species == SPECIES_EEVEE_STARTER)
+    return IsSpeciesEnabled(species);
+}
+
+static bool32 FrontierCreator_IsBannedSpecies(enum Species species)
+{
+    if (!FrontierCreator_IsSelectableAllowedSpecies(species))
         return TRUE;
 
     if (!FrontierCreator_IsAllowedBaseSpecies(species))
-        return TRUE;
-
-    if (!IsSpeciesEnabled(species))
         return TRUE;
 
     return FALSE;
@@ -2290,6 +2304,21 @@ static void FrontierCreator_HandleSpeciesInput(u8 taskId)
     s32 value = oldValue;
     s16 direction = 1;
 
+    if (gTasks[taskId].tSpeciesSortMode == FRONTIER_CREATOR_SORT_PRIMARY_TYPE)
+    {
+        if (JOY_NEW(DPAD_UP))
+            value = FrontierCreator_GetNextAllowedSpeciesByType(oldValue, 1);
+        else if (JOY_NEW(DPAD_DOWN))
+            value = FrontierCreator_GetNextAllowedSpeciesByType(oldValue, -1);
+        else if (JOY_NEW(DPAD_LEFT))
+            value = FrontierCreator_GetNextAllowedPrimaryType(oldValue, -1);
+        else if (JOY_NEW(DPAD_RIGHT))
+            value = FrontierCreator_GetNextAllowedPrimaryType(oldValue, 1);
+
+        gTasks[taskId].tInput = value;
+        return;
+    }
+
     if (JOY_NEW(DPAD_UP))
     {
         value += sFrontierCreatorPowersOfTen[gTasks[taskId].tDigit];
@@ -2404,12 +2433,15 @@ static void FrontierCreator_DrawSpeciesScreen(u8 taskId)
 {
     u8 windowId = gTasks[taskId].tWindowId;
     enum Species species = gTasks[taskId].tInput;
+    enum Type primaryType;
 
     if (FrontierCreator_IsBannedSpecies(species))
     {
         species = FrontierCreator_GetNextAllowedSpecies(species, 1);
         gTasks[taskId].tInput = species;
     }
+
+    primaryType = GetSpeciesType(species, 0);
 
     FrontierCreator_ClearWindow(windowId);
 
@@ -2418,21 +2450,31 @@ static void FrontierCreator_DrawSpeciesScreen(u8 taskId)
     StringAppend(gStringVar4, COMPOUND_STRING("No."));
     ConvertIntToDecimalStringN(gStringVar1, species, STR_CONV_MODE_LEADING_ZEROS, 4);
     StringAppend(gStringVar4, gStringVar1);
-    StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n"));
-
-    StringAppend(gStringVar4, COMPOUND_STRING("なまえ: "));
+    StringAppend(gStringVar4, COMPOUND_STRING(" "));
     StringAppend(gStringVar4, GetSpeciesName(species));
     StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n"));
 
-    StringAppend(gStringVar4, COMPOUND_STRING("このしゅるいは OK{CLEAR_TO 90}\n"));
-
-    StringAppend(gStringVar4, COMPOUND_STRING("けた: 10 "));
-    ConvertIntToDecimalStringN(gStringVar1, gTasks[taskId].tDigit, STR_CONV_MODE_LEADING_ZEROS, 1);
-    StringAppend(gStringVar4, gStringVar1);
+    StringAppend(gStringVar4, COMPOUND_STRING("タイプ1: "));
+    StringAppend(gStringVar4, FrontierCreator_GetTypeName(primaryType));
     StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n"));
 
-    StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}へんこう {LEFT_ARROW}{RIGHT_ARROW}けた"));
-    StringAppend(gStringVar4, sFrontierCreatorText_Controls);
+    if (gTasks[taskId].tSpeciesSortMode == FRONTIER_CREATOR_SORT_PRIMARY_TYPE)
+    {
+        StringAppend(gStringVar4, COMPOUND_STRING("ならび: タイプ1"));
+    }
+    else
+    {
+        StringAppend(gStringVar4, COMPOUND_STRING("ならび: No. けた: "));
+        ConvertIntToDecimalStringN(gStringVar1, gTasks[taskId].tDigit, STR_CONV_MODE_LEADING_ZEROS, 1);
+        StringAppend(gStringVar4, gStringVar1);
+    }
+    StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n"));
+
+    if (gTasks[taskId].tSpeciesSortMode == FRONTIER_CREATOR_SORT_PRIMARY_TYPE)
+        StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}しゅるい {LEFT_ARROW}{RIGHT_ARROW}タイプ"));
+    else
+        StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}へんこう {LEFT_ARROW}{RIGHT_ARROW}けた"));
+    StringAppend(gStringVar4, sFrontierCreatorText_SpeciesControls);
 
     FrontierCreator_PrintWindow(windowId);
 }
@@ -2622,6 +2664,119 @@ static enum Species FrontierCreator_GetNextAllowedSpecies(enum Species species, 
     return species;
 }
 
+static bool32 FrontierCreator_IsSpeciesBeforeByPrimaryType(enum Species lhs, enum Species rhs)
+{
+    enum Type lhsType = GetSpeciesType(lhs, 0);
+    enum Type rhsType = GetSpeciesType(rhs, 0);
+
+    if (lhsType != rhsType)
+        return lhsType < rhsType;
+
+    return lhs < rhs;
+}
+
+static enum Species FrontierCreator_GetTypeSortedBoundary(bool32 getLast)
+{
+    enum Species candidate = SPECIES_NONE;
+    u32 i;
+
+    for (i = 0; sFrontierCreatorAllowedBaseSpecies[i] != SPECIES_NONE; i++)
+    {
+        enum Species listedSpecies = sFrontierCreatorAllowedBaseSpecies[i];
+
+        if (!FrontierCreator_IsSelectableAllowedSpecies(listedSpecies))
+            continue;
+
+        if (candidate == SPECIES_NONE
+         || (!getLast && FrontierCreator_IsSpeciesBeforeByPrimaryType(listedSpecies, candidate))
+         || (getLast && FrontierCreator_IsSpeciesBeforeByPrimaryType(candidate, listedSpecies)))
+            candidate = listedSpecies;
+    }
+
+    if (candidate == SPECIES_NONE)
+        return FrontierCreator_GetFirstAllowedSpecies();
+
+    return candidate;
+}
+
+static enum Species FrontierCreator_GetNextAllowedSpeciesByType(enum Species species, s16 delta)
+{
+    enum Species candidate = SPECIES_NONE;
+    u32 i;
+
+    for (i = 0; sFrontierCreatorAllowedBaseSpecies[i] != SPECIES_NONE; i++)
+    {
+        enum Species listedSpecies = sFrontierCreatorAllowedBaseSpecies[i];
+
+        if (!FrontierCreator_IsSelectableAllowedSpecies(listedSpecies))
+            continue;
+
+        if (delta > 0)
+        {
+            if (FrontierCreator_IsSpeciesBeforeByPrimaryType(species, listedSpecies)
+             && (candidate == SPECIES_NONE
+              || FrontierCreator_IsSpeciesBeforeByPrimaryType(listedSpecies, candidate)))
+                candidate = listedSpecies;
+        }
+        else
+        {
+            if (FrontierCreator_IsSpeciesBeforeByPrimaryType(listedSpecies, species)
+             && (candidate == SPECIES_NONE
+              || FrontierCreator_IsSpeciesBeforeByPrimaryType(candidate, listedSpecies)))
+                candidate = listedSpecies;
+        }
+    }
+
+    if (candidate == SPECIES_NONE)
+        candidate = FrontierCreator_GetTypeSortedBoundary(delta < 0);
+
+    return candidate;
+}
+
+static enum Species FrontierCreator_GetFirstAllowedSpeciesOfType(enum Type type)
+{
+    enum Species candidate = SPECIES_NONE;
+    u32 i;
+
+    for (i = 0; sFrontierCreatorAllowedBaseSpecies[i] != SPECIES_NONE; i++)
+    {
+        enum Species listedSpecies = sFrontierCreatorAllowedBaseSpecies[i];
+
+        if (!FrontierCreator_IsSelectableAllowedSpecies(listedSpecies)
+         || GetSpeciesType(listedSpecies, 0) != type)
+            continue;
+
+        if (candidate == SPECIES_NONE || listedSpecies < candidate)
+            candidate = listedSpecies;
+    }
+
+    return candidate;
+}
+
+static enum Species FrontierCreator_GetNextAllowedPrimaryType(enum Species species, s16 delta)
+{
+    s32 type = GetSpeciesType(species, 0);
+    s32 direction = delta < 0 ? -1 : 1;
+    u32 i;
+
+    for (i = 0; i < NUMBER_OF_MON_TYPES; i++)
+    {
+        enum Species candidate;
+
+        type += direction;
+        if (type < TYPE_NONE)
+            type = NUMBER_OF_MON_TYPES - 1;
+        else if (type >= NUMBER_OF_MON_TYPES)
+            type = TYPE_NONE;
+
+        candidate = FrontierCreator_GetFirstAllowedSpeciesOfType(type);
+        if (candidate != SPECIES_NONE)
+            return candidate;
+    }
+
+    return species;
+}
+
 static void FrontierCreator_CreateMonAndGive(void)
 {
     struct Pokemon mon;
@@ -2706,6 +2861,14 @@ static void FrontierCreator_DestroyAndReturn(u8 taskId)
 
 static void Task_FrontierCreator_SelectSpecies(u8 taskId)
 {
+    if (JOY_NEW(SELECT_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        gTasks[taskId].tSpeciesSortMode ^= 1;
+        FrontierCreator_DrawSpeciesScreen(taskId);
+        return;
+    }
+
     if (JOY_NEW(DPAD_ANY))
     {
         enum Species oldSpecies = gTasks[taskId].tInput;
@@ -3512,6 +3675,7 @@ void Special_OpenFrontierPokemonCreator(void)
     gTasks[taskId].tStatId = 0;
     gTasks[taskId].tPreviewSpriteId = FRONTIER_CREATOR_PREVIEW_NONE;
     gTasks[taskId].tPreviewSpecies = SPECIES_NONE;
+    gTasks[taskId].tSpeciesSortMode = FRONTIER_CREATOR_SORT_SPECIES_ID;
 
     FrontierCreator_DrawSpeciesScreen(taskId);
     FrontierCreator_UpdateSpeciesPreview(taskId, gTasks[taskId].tInput, FALSE);
@@ -3523,5 +3687,6 @@ void Special_OpenFrontierPokemonCreator(void)
 #undef tStatId
 #undef tPreviewSpriteId
 #undef tPreviewSpecies
+#undef tSpeciesSortMode
 #undef tItemGiverList
 #undef tItemGiverSelectedIndex
