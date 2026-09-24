@@ -61,6 +61,7 @@ struct FrontierCreatorData
 {
     enum Species species;
     u8 level;
+    u8 gender;
     u8 nature;
     u8 abilityNum;
     u8 teraType;
@@ -112,6 +113,7 @@ enum FrontierCreatorSpeciesSortMode
 };
 
 static void Task_FrontierCreator_SelectSpecies(u8 taskId);
+static void Task_FrontierCreator_SelectGender(u8 taskId);
 static void Task_FrontierCreator_SelectLevel(u8 taskId);
 static void Task_FrontierCreator_SelectNature(u8 taskId);
 static void Task_FrontierCreator_SelectAbility(u8 taskId);
@@ -123,6 +125,7 @@ static void Task_FrontierCreator_SelectEVs(u8 taskId);
 static void FrontierCreator_DestroyAndReturn(u8 taskId);
 static void FrontierCreator_CreateMonAndGive(void);
 static void FrontierCreator_InitDefaultData(void);
+static void FrontierCreator_DrawGenderScreen(u8 taskId);
 static void FrontierCreator_DrawAbilityScreen(u8 taskId);
 
 static void Task_FrontierItemGiver_SelectItem(u8 taskId);
@@ -2183,12 +2186,32 @@ static bool32 FrontierCreator_IsBannedSpecies(enum Species species)
     return FALSE;
 }
 
+static bool32 FrontierCreator_HasMultipleGenders(enum Species species)
+{
+    u8 genderRatio = gSpeciesInfo[species].genderRatio;
+
+    return genderRatio != MON_MALE
+        && genderRatio != MON_FEMALE
+        && genderRatio != MON_GENDERLESS;
+}
+
+static u8 FrontierCreator_GetDefaultGender(enum Species species)
+{
+    u8 genderRatio = gSpeciesInfo[species].genderRatio;
+
+    if (FrontierCreator_HasMultipleGenders(species))
+        return MON_MALE;
+
+    return genderRatio;
+}
+
 static void FrontierCreator_InitDefaultData(void)
 {
     u32 i;
 
     sFrontierCreatorData->species = SPECIES_BULBASAUR;
     sFrontierCreatorData->level = 50;
+    sFrontierCreatorData->gender = FrontierCreator_GetDefaultGender(sFrontierCreatorData->species);
     sFrontierCreatorData->abilityNum = 0;
     sFrontierCreatorData->nature = NATURE_HARDY;
     sFrontierCreatorData->teraType = TYPE_NORMAL;
@@ -2475,6 +2498,30 @@ static void FrontierCreator_DrawSpeciesScreen(u8 taskId)
     else
         StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}へんこう {LEFT_ARROW}{RIGHT_ARROW}けた"));
     StringAppend(gStringVar4, sFrontierCreatorText_SpeciesControls);
+
+    FrontierCreator_PrintWindow(windowId);
+}
+
+static void FrontierCreator_DrawGenderScreen(u8 taskId)
+{
+    u8 windowId = gTasks[taskId].tWindowId;
+
+    FrontierCreator_ClearWindow(windowId);
+
+    StringCopy(gStringVar4, COMPOUND_STRING("せいべつを えらぶ{CLEAR_TO 90}\n"));
+    StringAppend(gStringVar4, COMPOUND_STRING("ポケモン: "));
+    StringAppend(gStringVar4, GetSpeciesName(sFrontierCreatorData->species));
+    StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n"));
+
+    StringAppend(gStringVar4, COMPOUND_STRING("せいべつ: "));
+    if (sFrontierCreatorData->gender == MON_FEMALE)
+        StringAppend(gStringVar4, COMPOUND_STRING("♀"));
+    else
+        StringAppend(gStringVar4, COMPOUND_STRING("♂"));
+
+    StringAppend(gStringVar4, COMPOUND_STRING("{CLEAR_TO 90}\n"));
+    StringAppend(gStringVar4, COMPOUND_STRING("{UP_ARROW}{DOWN_ARROW}きりかえ"));
+    StringAppend(gStringVar4, sFrontierCreatorText_Controls);
 
     FrontierCreator_PrintWindow(windowId);
 }
@@ -2795,7 +2842,7 @@ static void FrontierCreator_CreateMonAndGive(void)
 
     personality = GetMonPersonality(
         sFrontierCreatorData->species,
-        MON_GENDER_RANDOM,
+        sFrontierCreatorData->gender,
         sFrontierCreatorData->nature,
         RANDOM_UNOWN_LETTER
     );
@@ -2894,8 +2941,44 @@ static void Task_FrontierCreator_SelectSpecies(u8 taskId)
 
         PlaySE(SE_SELECT);
         sFrontierCreatorData->species = gTasks[taskId].tInput;
+        sFrontierCreatorData->gender = FrontierCreator_GetDefaultGender(sFrontierCreatorData->species);
 
         FrontierCreator_DestroySpeciesPreview(taskId);
+        if (FrontierCreator_HasMultipleGenders(sFrontierCreatorData->species))
+        {
+            FrontierCreator_DrawGenderScreen(taskId);
+            gTasks[taskId].func = Task_FrontierCreator_SelectGender;
+        }
+        else
+        {
+            FrontierCreator_DrawLevelScreen(taskId);
+            gTasks[taskId].func = Task_FrontierCreator_SelectLevel;
+        }
+    }
+    else if (JOY_NEW(B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        gSpecialVar_Result = FALSE;
+        FrontierCreator_DestroyAndReturn(taskId);
+    }
+}
+
+static void Task_FrontierCreator_SelectGender(u8 taskId)
+{
+    if (JOY_NEW(DPAD_UP | DPAD_DOWN))
+    {
+        PlaySE(SE_SELECT);
+        if (sFrontierCreatorData->gender == MON_MALE)
+            sFrontierCreatorData->gender = MON_FEMALE;
+        else
+            sFrontierCreatorData->gender = MON_MALE;
+
+        FrontierCreator_DrawGenderScreen(taskId);
+    }
+
+    if (JOY_NEW(A_BUTTON))
+    {
+        PlaySE(SE_SELECT);
         FrontierCreator_DrawLevelScreen(taskId);
         gTasks[taskId].func = Task_FrontierCreator_SelectLevel;
     }
@@ -3658,6 +3741,7 @@ void Special_OpenFrontierPokemonCreator(void)
 
     FrontierCreator_InitDefaultData();
     sFrontierCreatorData->species = FrontierCreator_GetFirstAllowedSpecies();
+    sFrontierCreatorData->gender = FrontierCreator_GetDefaultGender(sFrontierCreatorData->species);
 
     LockPlayerFieldControls();
     FreezeObjectEvents();
