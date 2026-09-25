@@ -165,7 +165,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
         .height = 16,
         .weight = 366,
         .description = COMPOUND_STRING(
-            "{JPN}わずか 0{ENG}.1びょうで ハネを\nつがえて てきを うつ。 まばたきの\nあいだに しょうぶが ついている。"),
+            "{JPN}わずか 0{ENG}.1{JPN}びょうで ハネを\nつがえて てきを うつ。 まばたきの\nあいだに しょうぶが ついている。"),
         .pokemonScale = 259,
         .pokemonOffset = 1,
         .trainerScale = 296,
